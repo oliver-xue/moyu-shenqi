@@ -91,7 +91,7 @@ Page({
             ready: true,
             shiftRangeText: shiftRangeText(this._settings),
             monthNotice: this._settings.salaryMonth !== T.previousMonthKey(now)
-                ? '当前基于 ' + this._settings.salaryMonth + ' 的到手月薪计算，工作日天数按本月算；可在「设置」里更新薪资'
+                ? '当前基于 ' + this._settings.salaryMonth + ' 的到手月薪计算，本月牛马天数 D 按班表算；可在「设置」里更新薪资'
                 : ''
         });
         this.tick(true);
@@ -178,7 +178,7 @@ Page({
         put('shiftDateLabel', s.shiftDateLabel);
         put('showOvertime', s.showOvertime);
         put('overtimeText', s.overtimeText);
-        put('showOvertimeButton', s.stateKey === 'OFF_WORK' || s.stateKey === 'OVERTIME');
+        put('showOvertimeButton', s.phaseKey === 'OFF_WORK' || s.phaseKey === 'OVERTIME');
         put('overtimeButtonText', s.showOvertime ? '我下班了' : '我还在加班');
         put('basisRows', s.basisRows);
         put('swText', T.msToHMS(swMs));

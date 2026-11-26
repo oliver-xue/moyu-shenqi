@@ -78,7 +78,7 @@
                 <text class="basis-label">{{item.label}}</text>
                 <text class="basis-value">{{item.value}}</text>
             </view>
-            <text class="hint">时薪 = 月薪 / D / T（D = 当月工作日天数，T = 每天工作时间）；T =（下班 − 上班）− 休息时间。金额每秒按当前时间重新计算，不逐秒累加。休息中倒计时继续走，但金额暂停。</text>
+            <text class="hint">时薪 = 月薪 / D / T（D = 本月牛马天数，T = 每天工作时间）；T =（下班 − 上班）− 休息时间。金额每秒按当前时间重新计算，不逐秒累加。休息中倒计时继续走，但金额暂停。</text>
             <button class="primary-button sheet-button" bindtap="onHideBasis">知道了</button>
         </view>
     </view>

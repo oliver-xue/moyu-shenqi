@@ -1,6 +1,7 @@
 const calc = require('../../utils/calc.js');
 const T = require('../../utils/time.js');
 const Store = require('../../utils/storage.js');
+const S = require('../../utils/schedule.js');
 
 function restText(settings) {
     if (!settings.rests || !settings.rests.length) return '无休息段';
@@ -23,7 +24,7 @@ Page({
         todayTotalText: '0 分 0 秒',
         recordCount: 0,
         holidaysNote: '',
-        workweekText: '双休（周一至周五）'
+        scheduleText: '标准班 · 双休（周一至周五）'
     },
 
     onShow: function () {
@@ -47,12 +48,8 @@ Page({
             overtimeMode: !!runtime.overtimeMode,
             todayTotalText: Math.floor(ms / 60000) + ' 分 ' + Math.floor(ms / 1000) % 60 + ' 秒',
             recordCount: Store.loadRecords().length,
-            workweekText: settings.workweek === 'single' ? '单休（周一至周六上班）' : '双休（周一至周五上班）',
-            holidaysNote: state.workdaysSource === 'official'
-                ? '当月工作日天数按本月整月计算，依据内置的国务院办公厅放假安排（含调休补班日）。'
-                : (settings.workweek === 'single'
-                    ? '未找到本月的节假日数据，工作日按周一至周六估算（单休）。'
-                    : '未找到本月的节假日数据，工作日按周一至周五估算。')
+            scheduleText: S.description(settings),
+            holidaysNote: S.holidaysNote(settings, state.workdaysSource)
         });
     },
 
@@ -115,7 +112,7 @@ Page({
     onAbout: function () {
         wx.showModal({
             title: '关于摸鱼神器',
-            content: '所有计算都在本机完成，不登录、不联网、不上传薪资。节假日表随版本内置，每年更新。金额公式严格按：时薪 = 月薪 / 当月工作日天数 / 每天工作时间。',
+            content: '所有计算都在本机完成，不登录、不联网、不上传薪资。节假日表随版本内置，每年更新。金额公式严格按：时薪 = 月薪 / 本月牛马天数 D / 每天工作时间。',
             showCancel: false
         });
     }

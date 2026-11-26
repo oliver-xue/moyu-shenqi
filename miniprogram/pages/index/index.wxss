@@ -39,6 +39,8 @@
 .badge-OFF_WORK { background: #e2e9e4; color: #4a5f57; }
 .badge-OVERTIME { background: #ffe4df; color: #a3412f; }
 .badge-DAY_OFF { background: #e9e5f8; color: #4f56a8; }
+.badge-SHIFT_OFF { background: #e9e5f8; color: #4f56a8; }
+.badge-HOLIDAY_WORK { background: #ffe4df; color: #a3412f; }
 .badge-UNINITIALIZED { background: #e2e9e4; color: #4a5f57; }
 
 .notice {

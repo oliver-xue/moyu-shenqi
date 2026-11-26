@@ -18,7 +18,7 @@
 
         <view class="card">
             <text class="section-title">当前班次</text>
-            <view class="line"><text>休息制度</text><text>{{workweekText}}</text></view>
+            <view class="line"><text>作息类型</text><text class="line-value">{{scheduleText}}</text></view>
             <view class="line"><text>上下班</text><text>{{shiftText}}</text></view>
             <view class="line"><text>休息段</text><text class="line-value">{{restText}}</text></view>
             <button class="edit-button primary-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onEdit">重新设置薪资与班次</button>

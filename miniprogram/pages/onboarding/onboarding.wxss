@@ -265,3 +265,104 @@
 
 .fine-tip { color: #5e7168; font-size: 22rpx; }
 .sheet-button { margin-top: 12rpx; }
+
+/* 作息类型选择 */
+.mode-intro-label { margin-bottom: 24rpx; }
+
+.mode-grid { display: flex; flex-wrap: wrap; gap: 12rpx; }
+
+.mode-card {
+    box-sizing: border-box;
+    width: calc(50% - 6rpx);
+    min-height: 110rpx;
+    padding: 18rpx;
+    border: 2rpx solid #cfded6;
+    border-radius: 24rpx;
+    background: #ffffff;
+}
+
+.mode-card-on { border-color: #0e7c72; background: #e0f3eb; }
+
+.mode-title { display: block; font-size: 28rpx; font-weight: 600; }
+.mode-desc { display: block; margin-top: 6rpx; color: #5e7168; font-size: 20rpx; line-height: 1.5; }
+
+.mode-panel {
+    margin-top: 24rpx;
+    padding-top: 24rpx;
+    border-top: 2rpx solid #dfe9e3;
+}
+
+.panel-title { display: block; margin-bottom: 12rpx; color: #374a43; font-size: 26rpx; font-weight: 600; }
+
+.week-grid { display: flex; flex-wrap: wrap; gap: 12rpx; }
+
+.week-chip {
+    min-width: 88rpx;
+    padding: 14rpx 0;
+    border-radius: 999rpx;
+    background: #e6efe9;
+    color: #4a5f57;
+    font-size: 24rpx;
+    text-align: center;
+}
+
+.week-chip-on { background: #0e7c72; color: #ffffff; }
+
+.form-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12rpx; margin: 12rpx 0; color: #374a43; font-size: 26rpx; }
+
+.num-input, .date-input {
+    box-sizing: border-box;
+    height: 76rpx;
+    padding: 0 16rpx;
+    border: 2rpx solid #cfded6;
+    border-radius: 18rpx;
+    font-size: 30rpx;
+    font-weight: 600;
+    text-align: center;
+}
+
+.num-input { width: 120rpx; }
+.num-input.wide { width: 200rpx; }
+.date-input { width: 280rpx; font-size: 26rpx; }
+
+.auto-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24rpx;
+    padding-top: 24rpx;
+    border-top: 2rpx solid #dfe9e3;
+}
+
+.auto-row .panel-title { margin-bottom: 4rpx; }
+
+.manual-count {
+    display: block;
+    margin-bottom: 12rpx;
+    color: #0e7c72;
+    font-size: 22rpx;
+    line-height: 1.5;
+}
+
+.manual-count-over { color: #a3412f; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8rpx; }
+
+.cal-day {
+    box-sizing: border-box;
+    width: 100%;
+    height: 72rpx;
+    border: 2rpx solid #cfded6;
+    border-radius: 16rpx;
+    background: #ffffff;
+    color: #374a43;
+    font-size: 24rpx;
+    line-height: 68rpx;
+    text-align: center;
+}
+
+.cal-work { background: #0e7c72; border-color: #0e7c72; color: #ffffff; }
+
+.cal-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8rpx; margin-top: 16rpx; color: #5e7168; font-size: 20rpx; }
+.legend-dot { width: 18rpx; height: 18rpx; margin-left: 8rpx; border: 2rpx solid #cfded6; border-radius: 999rpx; background: #ffffff; }
+.legend-work { background: #0e7c72; border-color: #0e7c72; }

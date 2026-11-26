@@ -15,18 +15,90 @@
 
     <view wx:if="{{step === 1}}" class="step-body">
         <view class="card">
-            <text class="field-label">你一周上几天班？</text>
-            <view class="week-picker">
-                <view class="week-option {{workweek === 'double' ? 'week-option-on' : ''}}" data-value="double" bindtap="onSelectWorkweek">
-                    <text class="week-option-title">双休</text>
-                    <text class="week-option-desc">周一至周五，周末都休息</text>
-                </view>
-                <view class="week-option {{workweek === 'single' ? 'week-option-on' : ''}}" data-value="single" bindtap="onSelectWorkweek">
-                    <text class="week-option-title">单休</text>
-                    <text class="week-option-desc">周一至周六，只休周日</text>
+            <text class="field-label mode-intro-label">先选一种作息类型</text>
+            <view class="mode-grid">
+                <view wx:for="{{scheduleModes}}" wx:key="mode" class="mode-card {{scheduleMode === item.mode ? 'mode-card-on' : ''}}" data-mode="{{item.mode}}" bindtap="onSelectScheduleMode">
+                    <text class="mode-title">{{item.label}}</text>
+                    <text class="mode-desc">{{item.desc}}</text>
                 </view>
             </view>
-            <text class="hint">这会影响「当月工作日天数」：上班天数越多，同样月薪摊到每小时就越少。选错了随时可以在设置里改。</text>
+
+            <view wx:if="{{scheduleMode === 'standard'}}" class="mode-panel">
+                <text class="panel-title">双休还是单休？</text>
+                <view class="week-picker">
+                    <view class="week-option {{workweek === 'double' ? 'week-option-on' : ''}}" data-value="double" bindtap="onSelectWorkweek">
+                        <text class="week-option-title">双休</text>
+                        <text class="week-option-desc">周一至周五，周末都休息</text>
+                    </view>
+                    <view class="week-option {{workweek === 'single' ? 'week-option-on' : ''}}" data-value="single" bindtap="onSelectWorkweek">
+                        <text class="week-option-title">单休</text>
+                        <text class="week-option-desc">周一至周六，只休周日</text>
+                    </view>
+                </view>
+                <text class="hint">标准班直接按照法定节假日处理：法定放假不上班，调休补班照常计钱。</text>
+            </view>
+
+            <view wx:if="{{scheduleMode === 'weekly'}}" class="mode-panel">
+                <text class="panel-title">每周哪几天上班？</text>
+                <view class="week-grid">
+                    <view wx:for="{{weekDays}}" wx:key="day" class="week-chip {{item.on ? 'week-chip-on' : ''}}" data-index="{{index}}" bindtap="onToggleWeekday">{{item.label}}</view>
+                </view>
+                <text class="hint">选中的星期几都算上班，未选中的算轮休；法定节假日让位你的休息安排。</text>
+            </view>
+
+            <view wx:if="{{scheduleMode === 'rotation'}}" class="mode-panel">
+                <text class="panel-title">做几天、休几天？</text>
+                <view class="form-row">
+                    <text>做</text>
+                    <input class="num-input" type="number" value="{{rotationWorkText}}" data-field="work" bindinput="onRotationInput" placeholder="2" />
+                    <text>天，休</text>
+                    <input class="num-input" type="number" value="{{rotationRestText}}" data-field="rest" bindinput="onRotationInput" placeholder="1" />
+                    <text>天</text>
+                </view>
+                <view class="form-row">
+                    <text>起始日期</text>
+                    <input class="date-input" type="text" value="{{rotationStartDate}}" data-field="start" bindinput="onRotationInput" placeholder="2026-11-01" />
+                </view>
+                <text class="panel-title">起始那天你在</text>
+                <view class="week-picker">
+                    <view class="week-option {{rotationStartState === 'work' ? 'week-option-on' : ''}}" data-value="work" bindtap="onSelectStartState">
+                        <text class="week-option-title">上班中</text>
+                    </view>
+                    <view class="week-option {{rotationStartState === 'rest' ? 'week-option-on' : ''}}" data-value="rest" bindtap="onSelectStartState">
+                        <text class="week-option-title">休息中</text>
+                    </view>
+                </view>
+                <text class="hint">从起始日期起按「做 N 休 M」循环；法定节假日让位你的休息安排。</text>
+            </view>
+
+            <view wx:if="{{scheduleMode === 'manual'}}" class="mode-panel">
+                <text class="panel-title">本月牛马天数 D</text>
+                <input class="num-input wide" type="number" value="{{manualDText}}" bindinput="onManualDInput" placeholder="例如 21" />
+                <text class="panel-title">逐日标记上班日期（{{calendarMonth}}）</text>
+                <text class="manual-count {{manualOverLimit ? 'manual-count-over' : ''}}">已标记上班 {{manualWorkCount}} 天 · 填写 D = {{manualDText || '—'}} 天（不能超过 D）</text>
+                <view class="cal-grid">
+                    <view wx:for="{{calendarDays}}" wx:key="key" class="cal-day cal-{{item.mark}}" data-index="{{index}}" bindtap="onToggleManualMark">{{item.day}}</view>
+                </view>
+                <view class="cal-legend">
+                    <text class="legend-dot legend-rest"></text><text>未标记＝休息</text>
+                    <text class="legend-dot legend-work"></text><text>标记＝上班</text>
+                </view>
+                <text class="hint">默认按国务院节假日表预填：法定放假日留空、调休补班日标为上班；初始化标记数等于 D。点日期只有两态：未标记是休息，标记就是上班；上班色块不能超过填写的 D。</text>
+            </view>
+
+            <view wx:if="{{scheduleMode !== 'manual'}}" class="auto-row">
+                <view class="switch-text">
+                    <text class="panel-title">本月牛马天数 D：自动按班表算（推荐）</text>
+                    <text class="hint">关闭后可自己填 D</text>
+                </view>
+                <switch checked="{{autoD}}" color="#0e7c72" bindchange="onToggleAutoD" />
+            </view>
+            <view wx:if="{{scheduleMode !== 'manual' && !autoD}}" class="form-row">
+                <text>自己填 D</text>
+                <input class="num-input" type="number" value="{{manualDText}}" bindinput="onManualDInput" placeholder="例如 21" />
+            </view>
+
+            <text wx:if="{{errors.schedule}}" class="error">{{errors.schedule}}</text>
         </view>
     </view>
 
@@ -85,7 +157,7 @@
     <view wx:if="{{step === 5}}" class="step-body">
         <view class="card">
             <text class="field-label">你的设置</text>
-            <view class="confirm-row"><text>休息制度</text><text>{{confirmWorkweekText}}</text></view>
+            <view class="confirm-row"><text>作息类型</text><text class="confirm-rest">{{confirmScheduleText}}</text></view>
             <view class="confirm-row"><text>到手月薪</text><text>{{confirmSalaryText}}</text></view>
             <view class="confirm-row"><text>薪资基准月（月薪来源）</text><text>{{preview.salaryMonth}}</text></view>
             <view class="confirm-row"><text>计算基准月（本月）</text><text>{{preview.workdayMonth}}</text></view>
@@ -94,7 +166,7 @@
         </view>
         <view class="card result-card">
             <text class="field-label">算出来是这样</text>
-            <view class="confirm-row"><text>当月工作日天数</text><text>{{preview.workdays}}</text></view>
+            <view class="confirm-row"><text>本月牛马天数 D</text><text>{{preview.workdays}}</text></view>
             <view class="confirm-row"><text>每天工作时间</text><text>{{preview.dailyWork}}</text></view>
             <view class="confirm-row"><text>休息合计</text><text>{{preview.restTotal}}</text></view>
             <view class="result-line">
@@ -105,7 +177,7 @@
                 <text>今日目标（日薪）</text>
                 <text class="result-value">¥ {{preview.daily}}</text>
             </view>
-            <text class="hint">时薪 = 上月到手月薪 / D / T（D = 本月工作日天数，T = 每天工作时间）。跨月时工作日天数会自动按新月重算，薪资数值保持到你重新填写为止。</text>
+            <text class="hint">时薪 = 上月到手月薪 / D / T（D = 本月牛马天数，T = 每天工作时间）。跨月时 D 会按班表自动重算，薪资数值保持到你重新填写为止。</text>
         </view>
     </view>
 

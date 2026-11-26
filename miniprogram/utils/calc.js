@@ -2,6 +2,7 @@
 // 严格实现方案 §5：时薪 = 月薪 / 当月工作日天数 / 每天工作时间
 const H = require('./holidays.js');
 const T = require('./time.js');
+const SCH = require('./schedule.js');
 
 const COPY = {
   UNINITIALIZED: ['先花 30 秒告诉我你的班次吧'],
@@ -11,6 +12,8 @@ const COPY = {
   OFF_WORK: ['今日收工，钱赚完啦', '今天的 KPI：准时下班，达成', '关掉页面，去过自己的生活'],
   OVERTIME: ['人还在，钱不加，记得早点走', '加班时长记着呢，别熬太晚', '这部分不算钱，但算辛苦'],
   DAY_OFF: ['今天不搬砖，钱包也放假', '好好躺，明天再赚', '休息日不产生收益，但产生快乐'],
+  SHIFT_OFF: ['今天睡饱，钱包躺好'],
+  HOLIDAY_WORK: ['节假日还在岗，辛苦了您'],
   MAKEUP: ['补班日，钱照赚（辛苦了）'],
   NIGHT: ['夜班进行中 · 归属 {D} 班次', '别人睡了，你的数字还在涨', '过零点不清零，放心']
 };
@@ -22,7 +25,9 @@ const LABELS = {
   RESTING: '休息中',
   OFF_WORK: '已下班',
   OVERTIME: '加班中',
-  DAY_OFF: '休息日'
+  DAY_OFF: '休息日',
+  SHIFT_OFF: '轮休',
+  HOLIDAY_WORK: '节假日班'
 };
 
 function spanOf(settings) {
@@ -67,9 +72,10 @@ function derive(settings, now) {
   const year = current.getFullYear();
   const month = current.getMonth() + 1;
   const workdayMonth = year + '-' + T.pad2(month);
+  const mode = SCH.modeOf(settings);
   const workweek = settings.workweek === 'single' ? 'single' : 'double';
-  let N = H.countWorkdays(year, month, workweek);
-  let source = H.hasYear(year) ? 'official' : 'estimate';
+  let N = SCH.countFor(settings, now);
+  let source = mode === 'standard' && H.hasYear(year) ? 'official' : 'estimate';
   if (!N) { N = 21.75; source = 'fallback'; }
   const salary = (Number(settings.salaryCent) || 0) / 100;
   const daily = salary / N;                       // 恒等式：日薪与每天工时无关
@@ -79,7 +85,7 @@ function derive(settings, now) {
     valid: span > 0 && S > 0 && salary > 0,
     span: span, rests: rests, restTotal: restTotal, S: S,
     N: N, source: source, year: year, month: month,
-    workdayMonth: workdayMonth, salaryMonth: settings.salaryMonth, workweek: workweek,
+    workdayMonth: workdayMonth, salaryMonth: settings.salaryMonth, workweek: workweek, mode: mode,
     salary: salary, daily: daily, hourly: hourly, perSecond: perSecond
   };
 }
@@ -121,7 +127,7 @@ function pickCopy(key, now, nightShift, shiftDateLabel, makeup) {
 
 function uninitialized() {
   return {
-    stateKey: 'UNINITIALIZED', statusLabel: LABELS.UNINITIALIZED,
+    stateKey: 'UNINITIALIZED', phaseKey: 'UNINITIALIZED', statusLabel: LABELS.UNINITIALIZED,
     statusText: COPY.UNINITIALIZED[0], nightShift: false, shiftDateLabel: '',
     countdownText: '--:--:--', earnedText: '--', remainWorkText: '--:--',
     remainEarnText: '--', progressPct: 0, hourlyText: '--', dailyText: '--',
@@ -146,17 +152,17 @@ function getState(settings, now, options) {
   let active = null;
   for (let delta = -2; delta <= 1; delta += 1) {
     const day = T.addDays(today, delta);
-    if (!H.isWorkday(day, d.workweek)) continue;
+    if (!SCH.isWorkday(day, settings)) continue;
     const shift = buildShift(settings, d, day);
     if (now >= shift.start && now < shift.end) {
       if (!active || shift.start > active.start) active = shift;
     }
   }
 
-  const todayWorkday = H.isWorkday(today, d.workweek);
+  const todayWorkday = SCH.isWorkday(today, settings);
   const todayShift = buildShift(settings, d, today);
-  // 单休制下周六是正常上班日，不算「补班」；只有周日上班才提示补班（且需当天确为工作日）
-  const makeup = todayWorkday && (d.workweek === 'single'
+  // 「补班日，钱照赚」只保留给标准班；其他班次周末上班是正常班表，不误标补班
+  const makeup = d.mode === 'standard' && todayWorkday && (d.workweek === 'single'
     ? today.getDay() === 0
     : (today.getDay() === 0 || today.getDay() === 6));
 
@@ -166,7 +172,7 @@ function getState(settings, now, options) {
   let lastEnded = null;
   for (let delta = -2; delta <= 0; delta += 1) {
     const day = T.addDays(today, delta);
-    if (!H.isWorkday(day, d.workweek)) continue;
+    if (!SCH.isWorkday(day, settings)) continue;
     const sh = buildShift(settings, d, day);
     if (now >= sh.end && (!lastEnded || sh.end > lastEnded.end)) lastEnded = sh;
   }
@@ -193,7 +199,7 @@ function getState(settings, now, options) {
     worked = d.S; // 满勤封顶，加班不加倍
     nightShift = shift.dateKey !== todayKey;
   } else if (!todayWorkday) {
-    key = 'DAY_OFF';
+    key = d.mode === 'standard' ? 'DAY_OFF' : 'SHIFT_OFF';
   } else if (now < todayShift.start) {
     shift = todayShift;
     key = 'NOT_STARTED';
@@ -203,23 +209,31 @@ function getState(settings, now, options) {
     worked = d.S;
   }
 
+  // 非标准班次按班表上班时，若正值法定放假日，展示「节假日班」；金额照常计算
+  const phaseKey = key;
+  const workDateKey = shift ? shift.dateKey : todayKey;
+  const holidayWork = d.mode !== 'standard' && H.isOfficialOff(T.keyToDate(workDateKey)) &&
+    ['WORKING', 'RESTING', 'NOT_STARTED', 'OFF_WORK', 'OVERTIME'].indexOf(phaseKey) >= 0;
+  const displayKey = holidayWork ? 'HOLIDAY_WORK' : phaseKey;
+
   const earned = worked * d.perSecond;
   const remainWorkSec = Math.max(0, d.S - worked);
   const remainEarn = Math.max(0, d.daily - earned);
   const progressPct = d.S > 0 ? Math.min(100, Math.max(0, worked / d.S * 100)) : 0;
   const shiftDateLabel = shift ? shift.dateKey.slice(5).replace('-', ' 月 ') + ' 日' : '';
   const countdownMs = shift ? Math.max(0, shift.end - now) : 0;
-  const overtimeMs = key === 'OVERTIME' ? Math.max(0, now - shift.end) : 0;
-  const needCountdown = key !== 'DAY_OFF' && key !== 'UNINITIALIZED';
+  const overtimeMs = phaseKey === 'OVERTIME' ? Math.max(0, now - shift.end) : 0;
+  const needCountdown = phaseKey !== 'DAY_OFF' && phaseKey !== 'SHIFT_OFF' && phaseKey !== 'UNINITIALIZED';
 
   return {
-    stateKey: key,
-    statusLabel: LABELS[key],
-    statusText: pickCopy(key, now, nightShift, shiftDateLabel, makeup),
+    stateKey: displayKey,
+    phaseKey: phaseKey,
+    statusLabel: LABELS[displayKey],
+    statusText: pickCopy(displayKey, now, nightShift, shiftDateLabel, makeup),
     nightShift: nightShift,
     shiftDateLabel: shiftDateLabel,
     countdownText: needCountdown ? T.msToHMS(countdownMs) : '--:--:--',
-    earnedText: key === 'DAY_OFF' ? '0.00' : T.money(earned),
+    earnedText: (phaseKey === 'DAY_OFF' || phaseKey === 'SHIFT_OFF') ? '0.00' : T.money(earned),
     remainWorkText: T.msToHM(remainWorkSec * 1000),
     remainEarnText: T.money(remainEarn),
     progressPct: Math.round(progressPct * 10) / 10,
@@ -232,14 +246,14 @@ function getState(settings, now, options) {
     salaryMonth: settings.salaryMonth,
     workdayMonth: d.workdayMonth,
     overtimeText: T.msToHMS(overtimeMs),
-    showOvertime: key === 'OVERTIME',
-    tickNeeded: key === 'WORKING' || key === 'RESTING' || key === 'NOT_STARTED' || key === 'OVERTIME',
+    showOvertime: phaseKey === 'OVERTIME',
+    tickNeeded: phaseKey === 'WORKING' || phaseKey === 'RESTING' || phaseKey === 'NOT_STARTED' || phaseKey === 'OVERTIME',
     basisRows: [
       { label: '上月到手月薪', value: '¥ ' + T.money(d.salary) },
       { label: '薪资基准月（月薪来源）', value: settings.salaryMonth },
       { label: '计算基准月（本月）', value: d.workdayMonth },
-      { label: '休息制度', value: d.workweek === 'single' ? '单休（周一至周六）' : '双休（周一至周五）' },
-      { label: '当月工作日天数 D', value: d.N + ' 天' + (d.source === 'official' ? '（法定节假日表）' : (d.workweek === 'single' ? '（按周一至周六估算）' : '（按周一至周五估算）')) },
+      { label: '作息类型', value: SCH.description(settings) },
+      { label: '本月牛马天数 D', value: d.N + ' 天' + SCH.daysNote(settings, d.source) },
       { label: '每天工作时间 T', value: T.msToHM(d.S * 1000) + '（已扣休息 ' + (d.restTotal / 60).toFixed(2) + ' 小时）' },
       { label: '时薪 = 月薪 / D / T', value: '¥ ' + T.money(d.hourly) + ' /小时' },
       { label: '秒薪', value: '¥ ' + d.perSecond.toFixed(6) + ' /秒' },

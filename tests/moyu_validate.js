@@ -51,7 +51,19 @@ ok('回弹样式存在（全局）', fs.readFileSync(ROOT + 'app.wxss', 'utf8').
 ok('第2步月薪说明只保留首句', OB_WXML.indexOf('<text class="hint">请填「到手」金额（扣完社保个税后实际到账的）。</text>') >= 0);
 ok('关于隐私模块保留', OB_WXML.indexOf('关于隐私') >= 0 && OB_WXML.indexOf('privacy-text') >= 0);
 ok('引导为 6 步', OB_WXML.indexOf('第 {{step + 1}} / 6 步') >= 0 && (OB_WXML.match(/wx:if="\{\{step === [0-5]\}\}" class="step-body/g) || []).length === 6);
-ok('休息制度选择块存在', OB_WXML.indexOf('data-value="double"') >= 0 && OB_WXML.indexOf('data-value="single"') >= 0 && OB_WXML.indexOf('onSelectWorkweek') >= 0);
+const OB_JS = fs.readFileSync(ROOT + 'pages/onboarding/onboarding.js', 'utf8');
+ok('作息类型四张卡片存在', OB_WXML.indexOf('wx:for="{{scheduleModes}}"') >= 0 && OB_WXML.indexOf('onSelectScheduleMode') >= 0 && ['standard', 'weekly', 'rotation', 'manual'].every(function (m) {
+  return OB_JS.indexOf("mode: '" + m + "'") >= 0;
+}));
+ok('第2步标题改为你的作息怎么排', fs.readFileSync(ROOT + 'pages/onboarding/onboarding.js', 'utf8').indexOf('你的作息怎么排？') >= 0);
+ok('四种班次配置项齐全', OB_WXML.indexOf('onToggleWeekday') >= 0 && OB_WXML.indexOf('onRotationInput') >= 0 && OB_WXML.indexOf('onToggleManualMark') >= 0);
+ok('双休单休保留在标准班内', OB_WXML.indexOf('data-value="double"') >= 0 && OB_WXML.indexOf('data-value="single"') >= 0 && OB_WXML.indexOf('onSelectWorkweek') >= 0);
+ok('自动按班表算 D 默认推荐', OB_WXML.indexOf('本月牛马天数 D：自动按班表算（推荐）') >= 0 && OB_WXML.indexOf('onToggleAutoD') >= 0);
+ok('手动排班取消三态浅色块', OB_WXML.indexOf('cal-off') < 0 && OB_WXML.indexOf('legend-off') < 0 && OB_WXML.indexOf('默认 → 上班 → 休息') < 0 && OB_WXML.indexOf('未标记＝休息') >= 0);
+ok('手动排班节假日按实际显示', OB_WXML.indexOf('法定放假日留空、调休补班日标为上班') >= 0 && fs.readFileSync(ROOT + 'utils/schedule.js', 'utf8').indexOf('手动排班默认按国务院节假日表预填') >= 0);
+const CAL_GRID = OB_WXSS.match(/\.cal-grid\s*\{([\s\S]*?)\}/);
+ok('日历一排 7 个色块', !!CAL_GRID && /grid-template-columns:\s*repeat\(7,\s*1fr\)/.test(CAL_GRID[1]));
+ok('作息类型标题有独立下间距', OB_WXML.indexOf('class="field-label mode-intro-label"') >= 0 && /\.mode-intro-label\s*\{[^}]*margin-bottom:\s*24rpx/.test(OB_WXSS));
 ok('footer 完成按钮在第6步', OB_WXML.indexOf('wx:if="{{step === 5}}" class="footer-btn primary-button') >= 0);
 const SALARY_CSS = OB_WXSS.match(/\.salary-input\s*\{([\s\S]*?)\}/);
 ok('月薪输入框有显式高度避免裁切', !!SALARY_CSS && /height:\s*\d+rpx/.test(SALARY_CSS[1]));
@@ -75,8 +87,12 @@ const STATUS_CARD = IDX_WXSS.match(/\.status-card\s*\{([\s\S]*?)\}/);
 ok('设置按钮文字不换行', !!EDIT_BTN && /white-space:\s*nowrap/.test(EDIT_BTN[1]));
 ok('状态文案模块整体居中', !!STATUS_CARD && /align-items:\s*center/.test(STATUS_CARD[1]) && /text-align:\s*center/.test(STATUS_CARD[1]));
 const CALC_SRC = fs.readFileSync(ROOT + 'utils/calc.js', 'utf8');
-ok('计算依据显示 D/T 符号', CALC_SRC.indexOf('当月工作日天数 D') >= 0 && CALC_SRC.indexOf('时薪 = 月薪 / D / T') >= 0);
+ok('计算依据显示 D/T 符号', CALC_SRC.indexOf('本月牛马天数 D') >= 0 && CALC_SRC.indexOf('时薪 = 月薪 / D / T') >= 0);
+ok('作息类型行与旧休息制度文案', CALC_SRC.indexOf("label: '作息类型'") >= 0 && CALC_SRC.indexOf("label: '休息制度'") < 0);
 ok('内置变量 d.N / d.S 未改动', CALC_SRC.indexOf('d.N') >= 0 && CALC_SRC.indexOf('d.S') >= 0);
+ok('新增轮休与节假日班状态', CALC_SRC.indexOf('SHIFT_OFF') >= 0 && CALC_SRC.indexOf('HOLIDAY_WORK') >= 0 && CALC_SRC.indexOf('今天睡饱，钱包躺好') >= 0 && CALC_SRC.indexOf('节假日还在岗，辛苦了您') >= 0);
+ok('补班文案只给标准班', CALC_SRC.indexOf("d.mode === 'standard' && todayWorkday") >= 0);
+ok('holidaysNote 按模式动态生成', fs.readFileSync(ROOT + 'utils/schedule.js', 'utf8').indexOf('holidaysNote') >= 0);
 
 console.log('== 运行时冒烟测试（模拟 wx / Page）==');
 const NOW_D = new Date();
@@ -123,6 +139,46 @@ idx.onHide();
 let ob = loadPage('pages/onboarding/onboarding.js');
 ob.onLoad({});
 ok('引导起始 step=0', ob.data.step === 0);
+ob.onSelectScheduleMode({ currentTarget: { dataset: { mode: 'weekly' } } });
+ok('可切固定周班', ob.data.scheduleMode === 'weekly');
+ob.onToggleWeekday({ currentTarget: { dataset: { index: 1 } } });
+ok('固定周班可选周一', ob.data.weekDays[1].on === true);
+ob.onSelectScheduleMode({ currentTarget: { dataset: { mode: 'rotation' } } });
+ob.onRotationInput({ currentTarget: { dataset: { field: 'work' } }, detail: { value: '2' } });
+ob.onRotationInput({ currentTarget: { dataset: { field: 'rest' } }, detail: { value: '1' } });
+ob.onSelectStartState({ currentTarget: { dataset: { value: 'work' } } });
+ok('轮班制配置可填', ob.data.rotationWorkText === '2' && ob.data.rotationRestText === '1' && ob.data.rotationStartState === 'work');
+ob.onSelectScheduleMode({ currentTarget: { dataset: { mode: 'manual' } } });
+const daysInMonth = new Date(NOW_D.getFullYear(), NOW_D.getMonth() + 1, 0).getDate();
+const baseWork = HOL.countWorkdays(NOW_D.getFullYear(), NOW_D.getMonth() + 1);
+ok('手动排班默认按国务院节假日表预填', ob.data.manualWorkCount === baseWork && ob.data.calendarDays.length === daysInMonth);
+ok('初始标记与节假日表逐日一致', ob.data.calendarDays.every(function (d) {
+  return (d.mark === 'work') === HOL.isWorkdayKey(d.key, 'double');
+}));
+ok('初始 D 跟随当月标准班天数', ob.data.manualDText === String(baseWork));
+ok('初始标记数等于 D', ob.data.manualWorkCount === Number(ob.data.manualDText));
+ok('日历显示当月实际天数', ob.data.calendarDays.length === new Date(NOW_D.getFullYear(), NOW_D.getMonth() + 1, 0).getDate());
+ok('日期只有上班/休息两态', ob.data.calendarDays.every(function (d) { return d.mark === '' || d.mark === 'work'; }));
+ob.onManualDInput({ detail: { value: String(baseWork + 4) } });
+ok('手动排班初始色块数按当月标准班算出', ob.data.manualWorkCount === baseWork);
+ob.onToggleManualMark({ currentTarget: { dataset: { index: 0 } } });
+ok('手动排班可标特殊日期', ob.data.calendarDays[0].mark === 'work' && ob.data.manualWorkCount === baseWork + 1);
+ob.onManualDInput({ detail: { value: String(baseWork) } });
+ok('D 小于已标色块时提示超限', ob.data.manualOverLimit === true && !!ob.data.errors.schedule);
+ok('超限不能进入下一步', ob.validateSchedule() !== '');
+const weekendIndex = ob.data.calendarDays.findIndex(function (d, i) {
+  const w = TM.keyToDate(d.key).getDay(); return i !== 0 && (w === 0 || w === 6);
+});
+const weekdayIndex = ob.data.calendarDays.findIndex(function (d) {
+  const w = TM.keyToDate(d.key).getDay(); return w >= 1 && w <= 5;
+});
+ob.onToggleManualMark({ currentTarget: { dataset: { index: weekendIndex } } });
+ok('超限后新增上班色块被拒绝', ob.data.calendarDays[weekendIndex].mark === '');
+ob.onToggleManualMark({ currentTarget: { dataset: { index: weekdayIndex } } });
+ok('取消标记可释放色块', ob.data.calendarDays[weekdayIndex].mark === '' && ob.data.manualWorkCount === baseWork);
+ob.onManualDInput({ detail: { value: String(baseWork) } });
+ok('色块数等于 D 时校验通过', ob.data.manualOverLimit === false && ob.validateSchedule() === '');
+ob.onSelectScheduleMode({ currentTarget: { dataset: { mode: 'standard' } } });
 ob.onNext();
 ok('休息制度默认双休', ob.data.workweek === 'double');
 ob.onSelectWorkweek({ currentTarget: { dataset: { value: 'single' } } });
@@ -148,7 +204,7 @@ ob.onSaveRest();
 ok('重叠段自动合并', ob.data.rests.length === 1 && ob.data.rests[0].endOffsetMin === 300, JSON.stringify(ob.data.rests));
 ob.onNext();
 ok('确认页生成预览', ob.data.step === 5 && !!ob.data.preview);
-ok('确认页显示双休', ob.data.confirmWorkweekText === '双休（周一至周五上班）', ob.data.confirmWorkweekText);
+ok('确认页显示作息类型', ob.data.confirmScheduleText === '标准班 · 双休（周一至周五）', ob.data.confirmScheduleText);
 ok('确认页时薪按本月工作日算', ob.data.preview.hourly === EXPECT_HOURLY, ob.data.preview.hourly + ' / expect ' + EXPECT_HOURLY);
 ok('确认页计算基准月 = 本月', ob.data.preview.workdayMonth === EXPECT_MONTH, ob.data.preview.workdayMonth);
 ok('确认页薪资基准月 ≠ 本月', ob.data.preview.salaryMonth !== EXPECT_MONTH, ob.data.preview.salaryMonth);
@@ -163,7 +219,8 @@ ok('已初始化首页 ready', idx.data.ready === true);
 ok('倒计时有值', /^\d\d:\d\d:\d\d$/.test(idx.data.countdownText), idx.data.countdownText);
 ok('金额有值', /^[\d,]+\.\d\d$/.test(idx.data.earnedText), idx.data.earnedText);
 ok('计算依据行数', idx.data.basisRows.length === 9);
-ok('计算依据含休息制度行', idx.data.basisRows.some(function (r) { return r.label === '休息制度'; }));
+ok('计算依据含作息类型行', idx.data.basisRows.some(function (r) { return r.label === '作息类型'; }));
+ok('计算依据含本月牛马天数 D', idx.data.basisRows.some(function (r) { return r.label === '本月牛马天数 D'; }));
 idx.tick(true);
 ok('tick 可重复执行', true);
 
@@ -186,13 +243,36 @@ let st = loadPage('pages/settings/settings.js');
 st.onShow();
 ok('设置页 ready', st.data.ready === true);
 ok('设置页展示计算依据', st.data.rows.length === 9);
-ok('设置页显示休息制度', st.data.workweekText === '双休（周一至周五上班）', st.data.workweekText);
+ok('设置页显示作息类型', st.data.scheduleText === '标准班 · 双休（周一至周五）', st.data.scheduleText);
+ok('设置页节假日说明仅标准班提国务院表', st.data.holidaysNote.indexOf('按国务院节假日表') >= 0);
 ok('设置页显示班次', /09:00/.test(st.data.shiftText), st.data.shiftText);
 st.onToggleAutoRestLink({ detail: { value: true } });
 ok('联动开关持久化', store['moyu.settings.v1'].autoRestLink === true);
 st.onToggleOvertime({ detail: { value: true } });
 ok('加班开关持久化', store['moyu.runtime.v1'].overtimeMode === true);
 st.onAbout();
+
+// 手动排班初始化：标记数与 D 严格一致，且落在当月真实工作日
+let ob2 = loadPage('pages/onboarding/onboarding.js');
+ob2.onLoad({});
+ob2.applyForm({ step: 0, salaryInput: '10000', scheduleMode: 'manual', manualD: 18,
+  startMin: 540, endMin: 1080, rests: [] }, '2026-11');
+const initWork = ob2.data.calendarDays.filter(function (d) { return d.mark === 'work'; });
+ok('初始化标记数等于 D', ob2.data.manualWorkCount === 18 && initWork.length === 18, ob2.data.manualWorkCount);
+ok('初始化标记落在节假日表工作日', initWork.every(function (d) {
+  return HOL.isWorkdayKey(d.key, 'double');
+}));
+
+// 旧存档里的休息日/节假日上班标记，初始化时不应恢复
+let ob3 = loadPage('pages/onboarding/onboarding.js');
+ob3.onLoad({});
+const restKey = ob3.data.calendarDays.filter(function (d) {
+  return !HOL.isWorkdayKey(d.key, 'double');
+})[0].key;
+ob3.applyForm({ step: 0, salaryInput: '10000', scheduleMode: 'manual', manualD: baseWork,
+  specialDates: [{ date: restKey, type: 'work' }], startMin: 540, endMin: 1080, rests: [] }, '2026-11');
+ok('旧存档休息日标记不会恢复', ob3.data.calendarDays.filter(function (d) { return d.key === restKey; })[0].mark === '');
+ok('清洗后标记数仍等于 D', ob3.data.manualWorkCount === baseWork);
 
 console.log('\nRESULT: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

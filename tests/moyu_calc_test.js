@@ -2,6 +2,7 @@ const path = require('path');
 const P = path.join(__dirname, '..', 'miniprogram', 'utils') + path.sep;
 const H = require(P + 'holidays.js');
 const T = require(P + 'time.js');
+const SCHED = require(P + 'schedule.js');
 let pass = 0, fail = 0;
 function eq(name, got, want) { if (String(got) === String(want)) { pass++; console.log('  OK  ' + name + ' = ' + got); } else { fail++; console.log('  FAIL ' + name + ' got=' + got + ' want=' + want); } }
 function ok(name, cond, extra) { if (cond) { pass++; console.log('  OK  ' + name + (extra ? ' = ' + extra : '')); } else { fail++; console.log('  FAIL ' + name + (extra ? ' :: ' + extra : '')); } }
@@ -48,6 +49,35 @@ eq('derive 返回 workweek=single', dS.workweek, 'single');
 eq('无 workweek 默认 double', dD.workweek, 'double');
 const stSatSingle = realCalc.getState(RS_single, new Date(2026,10,14,10,0,0).getTime(), {});
 ok('单休周六是正常的班(非DAY_OFF)', stSatSingle.stateKey !== 'DAY_OFF', stSatSingle.stateKey);
+
+console.log('== 四种作息类型与节假日口径 ==');
+const WS5 = Object.assign({}, RS, { scheduleMode: 'weekly', weekdays: [1, 2, 3, 4, 5] });
+const WS6 = Object.assign({}, RS, { scheduleMode: 'weekly', weekdays: [1, 2, 3, 4, 5, 6] });
+eq('固定周班按周一至周五 D=21', SCHED.countWorkdays(2026, 11, WS5), 21);
+ok('固定周班加周六 D 变多', SCHED.countWorkdays(2026, 11, WS6) > 21, SCHED.countWorkdays(2026, 11, WS6));
+eq('固定周班周日轮休', realCalc.getState(WS5, new Date(2026, 10, 1, 10, 0, 0).getTime(), {}).stateKey, 'SHIFT_OFF');
+eq('轮休当天金额为 0', realCalc.getState(WS5, new Date(2026, 10, 1, 10, 0, 0).getTime(), {}).earnedText, '0.00');
+eq('轮休文案', realCalc.getState(WS5, new Date(2026, 10, 1, 10, 0, 0).getTime(), {}).statusText, '今天睡饱，钱包躺好');
+const ROT = Object.assign({}, RS, { scheduleMode: 'rotation', rotation: { workDays: 2, restDays: 1, startDate: '2026-11-01', startState: 'work' } });
+eq('轮班制做2休1 本月 D=20', SCHED.countWorkdays(2026, 11, ROT), 20);
+eq('轮班制休息日轮休', realCalc.getState(ROT, new Date(2026, 10, 3, 10, 0, 0).getTime(), {}).stateKey, 'SHIFT_OFF');
+const ROT_REST_FIRST = Object.assign({}, RS, { scheduleMode: 'rotation', rotation: { workDays: 2, restDays: 1, startDate: '2026-11-01', startState: 'rest' } });
+eq('轮班制起始状态为休息', SCHED.isWorkdayKey('2026-11-01', ROT_REST_FIRST), false);
+const MAN = Object.assign({}, RS, { scheduleMode: 'manual', manualD: 17, specialDates: [{ date: '2026-11-14', type: 'work' }] });
+eq('手动排班 D 直接用填写值', realCalc.derive(MAN, new Date(2026, 10, 9, 10, 0, 0).getTime()).N, 17);
+ok('手动特殊日期把周六标成上班', realCalc.getState(MAN, new Date(2026, 10, 14, 10, 0, 0).getTime(), {}).stateKey !== 'SHIFT_OFF', realCalc.getState(MAN, new Date(2026, 10, 14, 10, 0, 0).getTime(), {}).stateKey);
+eq('关闭自动算 D 时用自填值', realCalc.derive(Object.assign({}, RS, { autoD: false, manualD: 17 }), new Date(2026, 10, 9, 10, 0, 0).getTime()).N, 17);
+const ROT_HOL = Object.assign({}, RS, { scheduleMode: 'rotation', rotation: { workDays: 2, restDays: 1, startDate: '2026-10-01', startState: 'work' } });
+const holState = realCalc.getState(ROT_HOL, new Date(2026, 9, 1, 10, 0, 0).getTime(), {});
+eq('节假日上班进入节假日班状态', holState.stateKey, 'HOLIDAY_WORK');
+eq('节假日班文案', holState.statusText, '节假日还在岗，辛苦了您');
+ok('节假日班正常计钱', Number(holState.earnedText) > 0, holState.earnedText);
+const makeupState = realCalc.getState(RS, new Date(2026, 9, 10, 10, 0, 0).getTime(), {});
+ok('标准班补班日保留补班文案', makeupState.statusText.indexOf('补班日') >= 0, makeupState.statusText);
+const weekMakeup = realCalc.getState(WS6, new Date(2026, 9, 10, 10, 0, 0).getTime(), {});
+ok('其他班次周末上班不标补班', weekMakeup.statusText.indexOf('补班日') < 0, weekMakeup.statusText);
+const weekHoliday = realCalc.getState(WS5, new Date(2026, 9, 1, 10, 0, 0).getTime(), {});
+eq('其他班次节假日上班也计钱', weekHoliday.stateKey, 'HOLIDAY_WORK');
 
 console.log('== 方案 §9.1 示例 (mock D=20) ==');
 H.countWorkdays = function(){ return 20; };

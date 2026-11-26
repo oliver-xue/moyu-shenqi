@@ -79,6 +79,17 @@ function isWorkdayKey(key, workweek) {
   return isWorkday(parseKey(key), workweek);
 }
 
+// 仅查询法定放假日 / 调休补班日，不叠加周末规则；供非标准班次标记「节假日班」使用
+function isOfficialOff(date) {
+  const table = TABLE[String(date.getFullYear())];
+  return !!table && table.off.indexOf(keyOf(date)) >= 0;
+}
+
+function isOfficialMakeup(date) {
+  const table = TABLE[String(date.getFullYear())];
+  return !!table && table.on.indexOf(keyOf(date)) >= 0;
+}
+
 // month: 1-12，返回该自然月的整月工作日天数
 function countWorkdays(year, month, workweek) {
   const lastDay = new Date(year, month, 0).getDate();
@@ -93,5 +104,7 @@ module.exports = {
   hasYear: hasYear,
   isWorkday: isWorkday,
   isWorkdayKey: isWorkdayKey,
+  isOfficialOff: isOfficialOff,
+  isOfficialMakeup: isOfficialMakeup,
   countWorkdays: countWorkdays
 };
