@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>摸鱼神器 · 当前设置清单</title>
+<style>
+:root{--bg:#f6f7f9;--surface:#fff;--ink:#14241f;--ink2:#374a43;--ink3:#5e7168;
+--line:#cfded6;--brand:#0e7c72;--soft:#e0f3eb;--warm:#fff0d8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.8;
+font-family:"Yuanti SC","YouYuan","幼圆","PingFang SC","Hiragino Sans GB",-apple-system,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:36px 24px 90px}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:44px 52px 64px}
+.eyebrow{display:inline-block;background:var(--soft);color:var(--brand);font-size:12px;
+font-weight:500;letter-spacing:.08em;padding:4px 12px;border-radius:999px;margin-bottom:14px}
+h1{font-size:30px;margin:0 0 10px}
+.lead{color:var(--ink3);font-size:14px;margin:0}
+h2{font-size:20px;margin:42px 0 14px;padding-bottom:9px;border-bottom:2px solid var(--soft)}
+h3{font-size:16px;margin:24px 0 8px;color:var(--brand)}
+p{margin:10px 0;color:var(--ink2)}
+strong{color:var(--ink);font-weight:600}
+code{background:#eef3f0;color:#0b5f58;padding:2px 6px;border-radius:6px;
+font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.87em;word-break:break-all}
+.path{display:block;background:#eef3f0;border:1px dashed var(--line);border-radius:10px;
+padding:10px 14px;margin:10px 0;font-family:Menlo,monospace;font-size:13px;color:#0b5f58}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:14px 0}
+th{background:var(--soft);color:#0b5f58;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid #e6ede8;color:var(--ink2);vertical-align:top}
+tr:nth-child(even) td{background:#fafcfb}
+.note{margin:14px 0;padding:12px 16px;border-radius:10px;font-size:13.5px;line-height:1.75}
+.note-warn{background:var(--warm);color:#7a5312;border-left:3px solid #e0b45c}
+.note-info{background:var(--soft);color:#0b5f58;border-left:3px solid var(--brand)}
+.note strong{color:inherit}
+ul{padding-left:22px;color:var(--ink2)}li{margin:6px 0}
+.badge{display:inline-block;background:var(--soft);color:var(--brand);padding:2px 10px;
+border-radius:999px;font-size:12px;font-weight:500}
+.footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px}
+@media(max-width:720px){.wrap{padding:16px}.paper{padding:26px 20px 40px}h1{font-size:24px}}
+@media print{.wrap{padding:0}.paper{border:0;padding:0}h2,table{break-after:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="paper">
+
+<span class="eyebrow">SAVED STATE · 2026-11-09 21:58</span>
+<h1>摸鱼神器 · 当前设置清单</h1>
+<p class="lead">这份文件把项目当前所有设置、口径与界面状态固化下来。所有改动均已写入磁盘，可直接用微信开发者工具打开 <code>miniprogram/</code> 继续开发。</p>
+
+<h2>1. 工程位置</h2>
+<span class="path">/Users/xuerunzhi/WorkBuddy/摸鱼神器/miniprogram/</span>
+<p>纯本地原生微信小程序，<strong>无后端、无登录、无网络请求</strong>。<code>project.private.config.json</code> 是微信开发者工具自动生成的本地配置，不用手动维护。</p>
+<table>
+<tr><th>目录</th><th>内容</th></tr>
+<tr><td><code>utils/calc.js</code></td><td>计算引擎（时薪、已赚金额、状态判定），纯函数可独立测试</td></tr>
+<tr><td><code>utils/holidays.js</code></td><td>2026 年法定节假日与调休补班表</td></tr>
+<tr><td><code>utils/time.js</code></td><td>时间格式、24 小时制滑动刻度</td></tr>
+<tr><td><code>utils/storage.js</code></td><td>全部本地存储的读写封装</td></tr>
+<tr><td><code>pages/index/</code></td><td>首页：倒计时、金额、状态文案、正计时</td></tr>
+<tr><td><code>pages/onboarding/</code></td><td>5 步初始化引导</td></tr>
+<tr><td><code>pages/settings/</code></td><td>设置页：计算依据、开关、清空数据</td></tr>
+<tr><td><code>tests/</code></td><td>两个自检脚本（工作区根目录下，不在小程序包内）</td></tr>
+</table>
+
+<h2>2. 计算口径（v1.1）</h2>
+<table>
+<tr><th>项</th><th>当前设置</th></tr>
+<tr><td>薪资基准月</td><td>填写时的上一自然月，<strong>仅标注月薪来源，不进公式</strong></td></tr>
+<tr><td>计算基准月</td><td><strong>当前自然月（本月）</strong>，每月 1 日自动切换</td></tr>
+<tr><td>当月工作日天数 D</td><td>本月整月工作日数（周一至周五 − 法定放假 + 调休补班）。2026-10 = 18 天，2026-11 = 21 天，2026-12 = 23 天</td></tr>
+<tr><td>每天工作时间 T</td><td>（下班 − 上班）− 休息段总长；休息段最多 5 段，重叠自动合并</td></tr>
+<tr><td>时薪 / 日薪</td><td><code>时薪 = 月薪 / D / (T/3600)</code>；<code>日薪 = 月薪 / D</code></td></tr>
+<tr><td>金额</td><td>每 tick 用绝对时间<strong>全量重算</strong>，不累加；展示保留 2 位小数（ROUND_HALF_UP）</td></tr>
+<tr><td>加班 / 休息</td><td>加班不引入倍率，收益下班即封顶；休息段内倒计时继续走、金额冻结</td></tr>
+<tr><td>时间选择</td><td>24 小时制滑动，5 分钟吸附 + ±1 分钟精调；跨天班次用「相对上班点偏移」存储</td></tr>
+</table>
+
+<h2>3. 界面与文案现状</h2>
+<div class="note note-info"><strong>以 21:48 恢复后的版本为准：</strong>该引导页曾在 21:43 被编辑器回退，现已恢复为之前交付的文案与交互，并完整保留手动调整（标题换行、输入框高度）。</div>
+<table>
+<tr><th>页面</th><th>当前文案 / 行为</th></tr>
+<tr><td>首页主卡 A</td><td>距离下班倒计时（墙钟口径，每秒递减）</td></tr>
+<tr><td>首页主卡 B</td><td><strong>当日已赚金额</strong>（有效工时口径，每秒递增）</td></tr>
+<tr><td>首页状态卡</td><td>状态文案、夜班/加班提示、加班按钮<strong>全部居中对齐</strong></td></tr>
+<tr><td>引导第 1 步</td><td>标题「不催你干活 / 只告诉你又赚了几毛钱」<strong>保留手动换行的两行</strong>；按钮「等会再摸」「开始摸鱼」，点击有缩小回弹</td></tr>
+<tr><td>引导第 2 步</td><td>说明<strong>只保留首句</strong>；「关于隐私」卡片保留；输入框<strong>保留内联高度 102rpx</strong>（内联样式优先于样式表）</td></tr>
+<tr><td>引导第 5 步</td><td>显示薪资基准月、计算基准月（本月）、D、T、时薪、日薪；按钮「完成，开始摸鱼」</td></tr>
+<tr><td>设置页</td><td>「重新设置薪资与班次」按钮文字<strong>单行不换行</strong>；计算依据 8 行</td></tr>
+</table>
+
+<h2>4. 视觉风格</h2>
+<ul>
+<li><strong>字体</strong>：圆体优先回退链 <code>Yuanti SC → YouYuan/幼圆 → 苹方 → 系统字体</code>；大数字用等宽数字字体，不联网、不打包字体文件。</li>
+<li><strong>形态</strong>：卡片 36rpx 圆角（金额卡 44rpx）、按钮/徽章/标签/步骤点为胶囊 999rpx；行高 1.7、字距 0.4rpx；标题字重 600。</li>
+<li><strong>配色（清晰版）</strong>：主色青绿 <code>#0e7c72</code> 不变；页面底 <code>#eef3f0</code>、白卡 <code>#ffffff</code>、主文字 <code>#14241f</code>、辅助文字 <code>#5e7168</code>、边框 <code>#cfded6</code>。</li>
+</ul>
+
+<h2>5. 小程序运行时保存的所有设置 <span class="badge">重点</span></h2>
+<p>用户在小程序里填的每一项都通过 <code>wx.setStorageSync</code> 存在<strong>手机本地</strong>，关闭小程序、重启手机都不会丢，也不需要联网。</p>
+<table>
+<tr><th>存储键</th><th>保存的内容</th><th>写入时机</th></tr>
+<tr><td><code>moyu.settings.v1</code></td><td>到手月薪（分）、薪资基准月、上下班时间、休息段列表、自动联动开关、版本号、更新时间</td><td>引导完成；设置页切换「休息时自动开始摸鱼计时」</td></tr>
+<tr><td><code>moyu.stopwatch.v1</code></td><td>正计时状态（idle/running/paused）、开始时间戳、累计毫秒、标签（摸鱼/加班/专注）</td><td>开始、暂停、继续、结束、重置、切换标签、休息段自动联动</td></tr>
+<tr><td><code>moyu.records.v1</code></td><td>已结束的摸鱼记录（日期、标签、起止时间、时长），最多保留 500 条</td><td>正计时点「结束」时</td></tr>
+<tr><td><code>moyu.runtime.v1</code></td><td>上次系统时间、加班标记</td><td>首页显示/隐藏、切换「我还在加班」</td></tr>
+<tr><td><code>moyu.onboarding.draft</code></td><td>引导草稿（当前步数、已填薪资、班次、休息段）</td><td>引导每一步；完成后自动清除</td></tr>
+</table>
+<div class="note note-info"><strong>清除规则：</strong>「设置 → 清空今日累计」只删当天的已结束记录；「设置 → 清空全部数据」删除以上全部键并回到初始引导。此外，在微信里删除小程序、清除小程序缓存或换手机，本地数据也会丢失，需要重新填一次。</div>
+
+<h2>6. 状态核对</h2>
+<ul>
+<li><span class="badge">已通过</span> 计算用例 <strong>48/48</strong>、静态检查 + 页面冒烟 <strong>592/592</strong>（<code>node tests/moyu_calc_test.js</code>、<code>node tests/moyu_validate.js</code>）。</li>
+<li>上一轮被中断的「动态金额」改动<strong>没有执行</strong>，项目保持干净状态；如需继续可随时提出。</li>
+<li>自检断言已恢复严格版本，逐条校验按钮文案、点击态与说明首句。</li>
+</ul>
+<div class="note note-info"><strong>21:48 已按用户要求恢复</strong>：① 第 1 步按钮回到「等会再摸 / 开始摸鱼」；② 4 个底部按钮恢复点击缩小回弹；③ 第 2 步说明恢复为只留首句。<strong>手动加的标题换行与输入框内联高度 102rpx 全部保留</strong>。另外把点击回弹样式从引导页样式表提到 <code>app.wxss</code> 全局，使首页空态按钮的回弹也真正生效。</div>
+
+<div class="footer">摸鱼神器 · 当前设置清单 · 2026-11-09 21:58　|　配套：小程序开发方案 v1.1、零基础操作指南</div>
+
+</div></div>
+</body>
+</html>

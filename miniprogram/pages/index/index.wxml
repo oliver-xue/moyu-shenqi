@@ -1,0 +1,86 @@
+<view class="page">
+
+    <view wx:if="{{!ready}}" class="empty-view">
+        <text class="empty-emoji">○</text>
+        <text class="empty-title">还没设置班次</text>
+        <text class="empty-desc">填一下到手月薪、上下班时间和休息段，就能看到你每秒赚多少了。数据只存在这台手机里。</text>
+        <button class="primary-button empty-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onGoSetup">开始摸鱼（约 30 秒）</button>
+    </view>
+
+    <block wx:else>
+        <view class="topbar">
+            <view class="topbar-left">
+                <text class="date">{{todayText}}</text>
+                <text class="shift-range">班次 {{shiftRangeText}}</text>
+            </view>
+            <view class="badge badge-{{stateKey}}">{{statusLabel}}</view>
+        </view>
+
+        <view wx:if="{{monthNotice}}" class="notice">{{monthNotice}}</view>
+
+        <view class="card main-card">
+            <text class="card-label">距离下班倒计时</text>
+            <text class="big-number">{{countdownText}}</text>
+            <view class="sub-row">
+                <text>剩余有效工时 {{remainWorkText}}</text>
+                <text>还能赚 ¥{{remainEarnText}}</text>
+            </view>
+            <progress class="progress" percent="{{progressPct}}" stroke-width="6" activeColor="#0e7c72" backgroundColor="#e6f4f1" />
+            <text class="hint">已完成 {{progressPct}}% · 今日工作全长 {{dailyWorkText}}</text>
+        </view>
+
+        <view class="card money-card" bindtap="onShowBasis">
+            <text class="card-label">当日已赚金额</text>
+            <view class="money-line">
+                <text class="cny">¥</text>
+                <text class="big-number money-number">{{earnedText}}</text>
+            </view>
+            <text class="sub-line">时薪 ¥{{hourlyText}} /小时 · 今日目标 ¥{{dailyText}}</text>
+            <text class="hint">点一下，看这个数字怎么算出来的</text>
+        </view>
+
+        <view class="status-card">
+            <text class="status-copy">{{statusText}}</text>
+            <text wx:if="{{nightShift}}" class="status-tip">过零点不清零，金额连续计算</text>
+            <text wx:if="{{showOvertime}}" class="status-tip">已加班 {{overtimeText}} · 金额按公式封顶，不加倍</text>
+            <button wx:if="{{showOvertimeButton}}" class="overtime-button" bindtap="onToggleOvertime">{{overtimeButtonText}}</button>
+        </view>
+
+        <view class="card sw-card">
+            <view class="sw-head" bindtap="onToggleExpand">
+                <view class="sw-head-left">
+                    <text class="card-label">摸鱼计时 · 正计时</text>
+                    <text class="sw-summary">{{swText}} · 今日累计 {{todayTotalText}}</text>
+                </view>
+                <text class="sw-toggle">{{swExpanded ? '收起' : '展开'}}</text>
+            </view>
+
+            <block wx:if="{{swExpanded}}">
+                <text class="big-number sw-number">{{swText}}</text>
+                <view class="tag-row">
+                    <view wx:for="{{swTags}}" wx:key="key" class="tag {{swTag === item.key ? 'tag-on' : ''}}" data-tag="{{item.key}}" bindtap="onTagChange">{{item.label}}</view>
+                </view>
+                <view class="btn-row">
+                    <button wx:if="{{swState !== 'running'}}" class="sw-btn primary-button" bindtap="onStart">{{swPrimaryText}}</button>
+                    <button wx:else class="sw-btn ghost-button" bindtap="onPause">暂停</button>
+                    <button class="sw-btn ghost-button" bindtap="onFinish">结束</button>
+                    <button class="sw-btn ghost-button" bindtap="onReset">重置</button>
+                </view>
+                <text class="hint">正计时只记录时长，不影响上面的倒计时和金额。切后台、重启手机都不会丢。</text>
+            </block>
+        </view>
+    </block>
+
+    <view wx:if="{{showBasis}}" class="mask" bindtap="onHideBasis">
+        <view class="sheet" catchtap="noop">
+            <text class="sheet-title">这个数字怎么来的</text>
+            <view wx:for="{{basisRows}}" wx:key="label" class="basis-row">
+                <text class="basis-label">{{item.label}}</text>
+                <text class="basis-value">{{item.value}}</text>
+            </view>
+            <text class="hint">时薪 = 月薪 / D / T（D = 当月工作日天数，T = 每天工作时间）；T =（下班 − 上班）− 休息时间。金额每秒按当前时间重新计算，不逐秒累加。休息中倒计时继续走，但金额暂停。</text>
+            <button class="primary-button sheet-button" bindtap="onHideBasis">知道了</button>
+        </view>
+    </view>
+
+</view>

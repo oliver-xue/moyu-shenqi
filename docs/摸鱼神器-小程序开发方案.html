@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>摸鱼神器 · 计时类微信小程序开发方案 v1.1</title>
+<style>
+:root{--bg:#f6f7f9;--surface:#ffffff;--ink:#1c2530;--ink-2:#4a5766;--ink-3:#7b8794;
+--line:#e4e8ed;--brand:#0e7c72;--brand-soft:#e6f4f1;--amber:#b45309;--amber-soft:#fff5e6;
+--code-bg:#f2f4f7;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+font-size:15px;line-height:1.85;-webkit-font-smoothing:antialiased}
+.layout{display:flex;align-items:flex-start;max-width:1400px;margin:0 auto}
+.toc{position:sticky;top:0;height:100vh;overflow-y:auto;flex:0 0 258px;padding:30px 18px 40px 26px;
+border-right:1px solid var(--line);background:var(--surface)}
+.toc .toc-title{font-size:12px;letter-spacing:.14em;color:var(--ink-3);font-weight:700;margin:0 0 14px 6px}
+.toc a{display:block;text-decoration:none;color:var(--ink-2);padding:5px 10px;border-radius:7px;
+font-size:13px;line-height:1.5;transition:.15s}
+.toc a:hover{background:var(--brand-soft);color:var(--brand)}
+.toc a.active{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.toc .toc-h3{padding-left:24px;font-size:12.5px;color:var(--ink-3)}
+.content{flex:1;min-width:0;padding:36px 46px 90px;max-width:1080px}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:16px;
+padding:44px 52px 64px;box-shadow:0 2px 18px rgba(20,40,60,.045)}
+.hero{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:8px}
+.eyebrow{display:inline-block;background:var(--brand-soft);color:var(--brand);
+font-size:12px;font-weight:700;letter-spacing:.08em;padding:4px 11px;border-radius:20px;margin-bottom:14px}
+h1.doc-title{font-size:30px;line-height:1.35;margin:0 0 12px;letter-spacing:-.01em}
+.hero p{color:var(--ink-3);font-size:13.5px;margin:0}
+.hero .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.hero a.btn{font-size:12.5px;text-decoration:none;padding:6px 13px;border:1px solid var(--line);
+border-radius:8px;color:var(--ink-2);background:#fafbfc}
+.hero a.btn:hover{border-color:var(--brand);color:var(--brand)}
+h2{font-size:21px;margin:46px 0 16px;padding:0 0 10px;border-bottom:2px solid var(--brand-soft);
+letter-spacing:-.01em;scroll-margin-top:20px}
+h3{font-size:16.5px;margin:30px 0 12px;color:var(--brand);scroll-margin-top:20px}
+h4{font-size:15px;margin:22px 0 10px}
+p{margin:11px 0;color:var(--ink-2)}
+strong{color:var(--ink);font-weight:650}
+code{background:var(--code-bg);color:#0b5f58;padding:2px 6px;border-radius:5px;
+font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.875em}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:10px;
+padding:16px 18px;overflow-x:auto;margin:16px 0;line-height:1.65}
+pre code{background:none;padding:0;color:var(--ink);font-size:12.5px}
+hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+ul,ol{padding-left:24px;margin:12px 0;color:var(--ink-2)}
+li{margin:6px 0}
+blockquote{margin:16px 0;padding:12px 18px;background:var(--amber-soft);
+border-left:3px solid #e8a33d;border-radius:0 8px 8px 0;color:#7a4a10;font-size:14px}
+blockquote strong{color:#7a4a10}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+th{background:#f0f6f5;color:#0b5f58;text-align:left;font-weight:650;padding:11px 14px;
+border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid #eef1f4;color:var(--ink-2);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:#fbfcfd}
+tbody tr:hover{background:#f4faf8}
+td code,th code{white-space:nowrap}
+.footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+color:var(--ink-3);font-size:12.5px}
+@media(max-width:900px){
+.layout{display:block}.toc{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line);
+padding:18px 20px;max-height:250px}.content{padding:20px;max-width:100%}
+.paper{padding:26px 20px 40px}h1.doc-title{font-size:24px}}
+@media print{.toc{display:none}.content{padding:0;max-width:100%}.paper{border:0;box-shadow:0;padding:0}
+body{background:#fff}h2{break-after:avoid}table,pre,blockquote{break-inside:avoid}}
+</style></head>
+<body><div class="layout">
+<aside class="toc"><div class="toc-title">目录 / CONTENTS</div><a class="toc-h2" href="#sec-1">0. 一页纸决策速览</a>
+<a class="toc-h2" href="#sec-2">1. 目标与用户</a>
+<a class="toc-h3" href="#sec-3">1.1 产品定位</a>
+<a class="toc-h3" href="#sec-4">1.2 目标用户与场景</a>
+<a class="toc-h3" href="#sec-5">1.3 设计原则</a>
+<a class="toc-h3" href="#sec-6">1.4 非目标（v1 明确不做）</a>
+<a class="toc-h3" href="#sec-7">1.5 术语表</a>
+<a class="toc-h2" href="#sec-8">2. 页面信息架构</a>
+<a class="toc-h3" href="#sec-9">2.1 页面清单</a>
+<a class="toc-h3" href="#sec-10">2.2 首页分区（自上而下）</a>
+<a class="toc-h3" href="#sec-11">2.3 导航关系</a>
+<a class="toc-h3" href="#sec-12">2.4 全局组件与平台约束（微信小程序）</a>
+<a class="toc-h2" href="#sec-13">3. 初始化流程与校验</a>
+<a class="toc-h3" href="#sec-14">3.1 触发条件</a>
+<a class="toc-h3" href="#sec-15">3.2 分步流程（5 步）</a>
+<a class="toc-h3" href="#sec-16">3.3 字段规格</a>
+<a class="toc-h3" href="#sec-17">3.4 时间选择器交互规格（24 小时制滑动）</a>
+<a class="toc-h3" href="#sec-18">3.5 校验规则表</a>
+<a class="toc-h3" href="#sec-19">3.6 休息段处理规则</a>
+<a class="toc-h3" href="#sec-20">3.7 草稿、中断与修改入口</a>
+<a class="toc-h2" href="#sec-21">4. 计时状态流转</a>
+<a class="toc-h3" href="#sec-22">4.1 双计时器模型</a>
+<a class="toc-h3" href="#sec-23">4.2 倒计时状态机</a>
+<a class="toc-h3" href="#sec-24">4.3 正计时模式（摸鱼计时器）</a>
+<a class="toc-h3" href="#sec-25">4.4 两者共存的明确规则</a>
+<a class="toc-h3" href="#sec-26">4.5 时钟源与刷新策略</a>
+<a class="toc-h2" href="#sec-27">5. 计算规则</a>
+<a class="toc-h3" href="#sec-28">5.1 输入与常量</a>
+<a class="toc-h3" href="#sec-29">5.2 「当月工作日天数」取值口径（重点，v1.1 修订）</a>
+<a class="toc-h3" href="#sec-30">5.3 工作日、节假日与非工作日</a>
+<a class="toc-h3" href="#sec-31">5.4 核心公式（严格遵循）</a>
+<a class="toc-h3" href="#sec-32">5.5 有效工时计算（伪代码）</a>
+<a class="toc-h3" href="#sec-33">5.6 恒等式与自检（可写进单元测试）</a>
+<a class="toc-h3" href="#sec-34">5.7 金额精度</a>
+<a class="toc-h3" href="#sec-35">5.8 刷新频率</a>
+<a class="toc-h3" href="#sec-36">5.9 加班与非工作日数值</a>
+<a class="toc-h3" href="#sec-37">5.10 配置变更与跨月</a>
+<a class="toc-h2" href="#sec-38">6. 主页面展示逻辑</a>
+<a class="toc-h3" href="#sec-39">6.1 两大主指标定义</a>
+<a class="toc-h3" href="#sec-40">6.2 状态 × 文案 × 数值 × 更新行为（总表）</a>
+<a class="toc-h3" href="#sec-41">6.3 文案库（每状态 2–3 条随机轮播，避免重复疲劳）</a>
+<a class="toc-h3" href="#sec-42">6.4 交互与动效</a>
+<a class="toc-h3" href="#sec-43">6.5 空态与降级展示</a>
+<a class="toc-h2" href="#sec-44">7. 边界与异常处理</a>
+<a class="toc-h2" href="#sec-45">8. 数据模型与存储</a>
+<a class="toc-h3" href="#sec-46">8.1 配置对象 moyu.settings.v1</a>
+<a class="toc-h3" href="#sec-47">8.2 运行时与记录</a>
+<a class="toc-h3" href="#sec-48">8.3 节假日表 assets/holidays-YYYY.json</a>
+<a class="toc-h3" href="#sec-49">8.4 版本迁移</a>
+<a class="toc-h2" href="#sec-50">9. 验收标准</a>
+<a class="toc-h3" href="#sec-51">9.1 计算验收（示例配置）</a>
+<a class="toc-h3" href="#sec-52">9.2 功能与交互验收</a>
+<a class="toc-h3" href="#sec-53">9.3 状态展示验收</a>
+<a class="toc-h3" href="#sec-54">9.4 边界、性能与发布前检查</a>
+<a class="toc-h2" href="#sec-55">10. 附录</a>
+<a class="toc-h3" href="#sec-56">10.1 节假日数据维护</a>
+<a class="toc-h3" href="#sec-57">10.2 后续迭代建议（不计入 v1）</a></aside>
+<main class="content"><div class="paper">
+<div class="hero">
+<span class="eyebrow">PRODUCT SPEC · v1.1</span>
+<h1 class="doc-title">摸鱼神器 · 计时类微信小程序开发方案</h1>
+<p>面向上班族的计时工具 · 2026-11-09 · 原生微信小程序 / 纯本地存储 · 可直接进入开发</p>
+<div class="actions">
+<a class="btn" href="摸鱼神器-小程序开发方案.md">下载 Markdown 源文件</a>
+<a class="btn" href="#sec-1">先看一页纸决策速览 →</a>
+</div></div>
+<h1 class="doc-title">摸鱼神器 · 计时类微信小程序开发方案</h1>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>版本</td><td>v1.1（口径修订：工作日天数改按本月）</td></tr><tr><td>日期</td><td>2026-11-09</td></tr><tr><td>技术形态</td><td>原生微信小程序，纯本地存储，无账号、无后端、无网络强依赖</td></tr><tr><td>适用范围</td><td>产品 / 设计 / 前端 / 测试共用的功能与交互定义</td></tr><tr><td>优先级标记</td><td>P0 = 必做；P1 = 本期尽量做；P2 = 后续迭代</td></tr></tbody></table></div>
+<hr>
+<h2 id="sec-1">0. 一页纸决策速览</h2>
+<p>下表是本方案中所有「容易产生分歧」的口径决策。开发前先确认这张表，后续章节是它的展开。</p>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>争议点</th><th>v1 决策</th></tr></thead><tbody><tr><td>D01</td><td>正计时是干什么的</td><td>定位为<strong>「摸鱼计时器」</strong>：记录单次摸鱼 / 加班 / 专注时长，并汇总「今日摸鱼总时长」。它是用户主动掌控的秒表，与被动的排班倒计时互补</td></tr><tr><td>D02</td><td>两种计时如何共存</td><td><strong>一个 1s 全局时钟源 + 两套独立状态机</strong>；同屏共存；正计时不读写收益计算的任何输入，其数据不进入任何收益公式；二者互不自动启停（联动为默认关闭的设置项）</td></tr><tr><td>D03</td><td>「当月工作日天数」取哪个月</td><td>取<strong>当前自然月（本月）</strong>的<strong>整月</strong>工作日天数；薪资基准月（上月）仅标注这份月薪的来源，不参与分母计算</td></tr><tr><td>D04</td><td>工作日如何定义</td><td>周一至周五 − 法定放假 + 调休补班日；由内置年度节假日表计算；缺失年份降级为周一至周五</td></tr><tr><td>D05</td><td>「距离下班倒计时」口径</td><td><strong>墙钟口径</strong>：到下班时刻的自然剩余时长，不扣休息段。休息中仍递减，但金额冻结；另用副指标「剩余有效工时 / 还能赚」保证与金额自洽</td></tr><tr><td>D06</td><td>加班是否多赚钱</td><td><strong>不引入倍率</strong>。收益在下班时刻封顶为日薪，加班态只记录时长不改金额，以严格遵守给定公式</td></tr><tr><td>D07</td><td>金额怎么算才不丢</td><td>每个 tick 用<strong>绝对时间戳全量重算</strong>，绝不逐秒累加；因此无需高精度库、后台恢复不丢数据</td></tr><tr><td>D08</td><td>时间粒度</td><td>滑动 5 分钟吸附 + <code>±1</code> 分钟微调；最终以「自 00:00 起的分钟整数」存储，秒与毫秒不进入配置</td></tr><tr><td>D09</td><td>跨天怎么表达</td><td>所有时间转<strong>绝对时间戳</strong>建模；班次与休息段用「相对上班点的分钟偏移」存储，「今日」归属<strong>班次起始日</strong>（逻辑工作日）</td></tr><tr><td>D10</td><td>配置改了当天数据怎么办</td><td>按新配置<strong>重算整日</strong>（因为公式完全由配置决定），并 toast 明示；正计时记录不受影响</td></tr></tbody></table></div>
+<hr>
+<h2 id="sec-2">1. 目标与用户</h2>
+<h3 id="sec-3">1.1 产品定位</h3>
+<p>一款「把上班时间换算成钱」的轻量计时工具。用<strong>看得见的进账数字</strong>和<strong>距离下班的倒计时</strong>，把漫长的工时切成可感知的小单位，配合克制的幽默文案缓解上班的无聊感。它不是效率工具，不制造焦虑，不打卡、不排行、不评价表现。</p>
+<p>一句话：<strong>「不催你干活，只告诉你又赚了几毛钱。」</strong></p>
+<h3 id="sec-4">1.2 目标用户与场景</h3>
+<div class="table-wrap"><table><thead><tr><th>用户</th><th>特征</th><th>核心场景</th><th>期望</th></tr></thead><tbody><tr><td>固定班次上班族（主）</td><td>朝九晚六、双休、月薪制</td><td>工位上打开小程序挂着，余光扫一眼数字</td><td>「还有多久下班」「今天赚了多少了」</td></tr><tr><td>有午休 / 多段休息者</td><td>午休、下午茶、分段休息</td><td>休息时数字暂停，回来继续涨</td><td>数字与真实工时一致，别虚高</td></tr><tr><td>偶尔加班者</td><td>下班后仍滞留</td><td>想知道加班多久</td><td>记录时长，数字别乱跳</td></tr><tr><td>夜班 / 跨天班次者</td><td>22:00–06:00 等</td><td>半夜打开看进度</td><td>过零点不清零、不重置</td></tr></tbody></table></div>
+<h3 id="sec-5">1.3 设计原则</h3>
+<ol><li><strong>准确性优先于趣味性</strong>：所有文案可以皮，所有数字必须严格可复算（见 §5、§9）。</li><li><strong>一屏两数</strong>：打开即用，首屏不做任何操作就能看到「距离下班倒计时」和「当日已赚金额」。</li><li><strong>零打扰</strong>：无推送、无强制登录、无广告位；数据只存本机。</li><li><strong>可解释</strong>：任何数字都能在设置页找到它的来源（时薪、日薪、工作日天数、每日工时全部可见）。</li><li><strong>降级友好</strong>：节假日表缺失、后台被杀、系统时间跳变都不能导致白屏或错账。</li></ol>
+<h3 id="sec-6">1.4 非目标（v1 明确不做）</h3>
+<ul><li>不做到手工资 / 个税 / 社保反推，不做加班费倍率（1.5x / 2x / 3x）。</li><li>不做多套排班、排班表导入、按周不同班次。</li><li>不做云同步、账号体系、排行榜、社交分享、成就系统。</li><li>不做薪资数据上传与统计；所有计算在端上完成。</li></ul>
+<h3 id="sec-7">1.5 术语表</h3>
+<div class="table-wrap"><table><thead><tr><th>术语</th><th>定义</th></tr></thead><tbody><tr><td>薪资基准月</td><td>用户填写的「上个月到手月薪」所属的自然月，如当前为 2026-11 则为 <code>2026-10</code>；<strong>只标注月薪来源，不参与工作日天数计算</strong></td></tr><tr><td>计算基准月</td><td>「当月工作日天数 D」的取值月份，恒为<strong>当前自然月（本月）</strong>，随月份自动变化</td></tr><tr><td>逻辑工作日 L</td><td>一个班次的<strong>起始自然日</strong>，是「今日已赚」的归属单位，不等于自然日 00:00 切分</td></tr><tr><td>班次实例</td><td>工作日 L 对应的绝对时间区间 <code>[shiftStart(L), shiftEnd(L)]</code>，<code>shiftEnd</code> 可落在 L+1</td></tr><tr><td>班次跨度 <code>span</code></td><td><code>shiftEnd − shiftStart</code>，单位分钟，取值 <code>(0, 1440)</code></td></tr><tr><td>每日工作时间 <code>T</code></td><td><code>span − 休息总时长</code>，即 <code>（下班 − 上班）− 休息时间</code>，单位秒 / 小时</td></tr><tr><td>有效工作秒数 <code>worked(t)</code></td><td>从上班到 <code>t</code> 之间，扣除已发生休息段后的实际工作秒数</td></tr><tr><td>秒薪</td><td><code>月薪 /（工作日天数 × T_seconds）</code></td></tr><tr><td>日薪（满勤收入）</td><td><code>月薪 / 工作日天数</code>，见 §5.6 恒等式</td></tr><tr><td>墙钟倒计时</td><td><code>max(0, shiftEnd − t)</code>，含未来休息段，不扣休息</td></tr><tr><td>剩余有效工时</td><td><code>T − worked(t)</code>，与金额严格同步</td></tr></tbody></table></div>
+<hr>
+<h2 id="sec-8">2. 页面信息架构</h2>
+<h3 id="sec-9">2.1 页面清单</h3>
+<div class="table-wrap"><table><thead><tr><th>页面</th><th>路径</th><th>职责</th><th>优先级</th></tr></thead><tbody><tr><td>首页 / 摸鱼页</td><td><code>pages/index/index</code></td><td>两大主指标、状态文案、进度环、正计时卡片、设置入口</td><td>P0</td></tr><tr><td>初始化引导</td><td><code>pages/onboarding/onboarding</code></td><td>分步收集薪资、班次、休息段，确认页预览计算结果</td><td>P0</td></tr><tr><td>设置页</td><td><code>pages/settings/settings</code></td><td>查看 / 修改全部配置项，展示计算依据与口径说明</td><td>P0</td></tr><tr><td>数据说明弹层</td><td>首页内 <code>component</code></td><td>解释「这个数字怎么来的」：时薪、日薪、D、T 的展开</td><td>P1</td></tr><tr><td>记录页</td><td><code>pages/records/records</code></td><td>今日 / 近 7 日摸鱼记录与累计时长</td><td>P2</td></tr></tbody></table></div>
+<p>底部 <code>tabBar</code> v1 只保留「摸鱼」（首页）与「设置」两项；记录页从首页右上角进入，不占 tab，避免弱化首屏两数。</p>
+<h3 id="sec-10">2.2 首页分区（自上而下）</h3>
+<pre><code>┌─────────────────────────────────┐
+│ ① 状态条：日期 / 状态标签 / 设置入口 │
+├─────────────────────────────────┤
+│ ② 主卡 A：距离下班倒计时           │
+│    HH:MM:SS  （超大字号，等宽数字）  │
+│    副行：剩余有效工时 / 还能赚 ¥X   │
+│    环形进度：worked(t) / T         │
+├─────────────────────────────────┤
+│ ③ 主卡 B：当日已赚金额             │
+│    ¥ 000.00  （超大字号，等宽数字）  │
+│    副行：时薪 ¥X / 今日目标 ¥Y     │
+├─────────────────────────────────┤
+│ ④ 状态文案 + 轻互动彩蛋            │
+├─────────────────────────────────┤
+│ ⑤ 正计时卡片（摸鱼计时）           │
+│    00:00:00 / 开始·暂停·结束·重置   │
+│    标签：摸鱼 / 加班 / 专注         │
+│    今日摸鱼累计 X 分 Y 秒          │
+└─────────────────────────────────┘</code></pre>
+<ul><li>主卡 A、B 的视觉权重必须显著高于其他元素（字号 ≥ 48rpx 且为页面最大字号，数字使用等宽字体避免跳动）。</li><li>正计时卡片默认折叠为单行摘要，点击展开，避免挤占主指标。</li></ul>
+<h3 id="sec-11">2.3 导航关系</h3>
+<ul><li>首次进入（无配置）→ 初始化引导；允许「等会再摸」→ 首页空态。</li><li>首页右上角齿轮 → 设置页；设置页保存 → 返回首页并立即重算。</li><li>点主卡 B → 数据说明弹层（可解释性）。</li><li>首页空态引导条 → 初始化引导。</li></ul>
+<h3 id="sec-12">2.4 全局组件与平台约束（微信小程序）</h3>
+<div class="table-wrap"><table><thead><tr><th>约束</th><th>方案中的落地方式</th></tr></thead><tbody><tr><td>WXML 表达式不支持函数调用 / <code>?.</code> / 复杂字面量</td><td>所有派生值在页面 JS 计算好，直接写入 <code>data</code> 的展示字符串</td></tr><tr><td><code>setData</code> 频繁调用有性能成本</td><td>1s tick 内只把「发生变化的展示字段」写入 <code>setData</code>，金额按 2 位小数变化才更新</td></tr><tr><td>后台会冻结定时器</td><td><code>onHide</code> 清除定时器，<code>onShow</code> 用绝对时间立即补算并重启；不依赖 tick 累加</td></tr><tr><td>冷启动会丢内存状态</td><td>配置、正计时 <code>startAt</code>、摸鱼记录全部持久化到 <code>wx.setStorageSync</code></td></tr><tr><td>时间选择器</td><td>原生 <code>picker-view</code> + <code>picker-view-column</code>，不使用 HTML 标签 / 浏览器 API</td></tr><tr><td>数据存储</td><td>全部本地，不引入云服务、不申请网络权限用于业务计算</td></tr></tbody></table></div>
+<hr>
+<h2 id="sec-13">3. 初始化流程与校验</h2>
+<h3 id="sec-14">3.1 触发条件</h3>
+<ul><li>首次启动且 <code>moyu.settings.v1</code> 不存在 → 进入引导。</li><li>用户在设置页主动「重新设置」→ 复用同一组件，预填已有值。</li><li>引导中断（退出 / 切后台 / 杀进程）→ 草稿写入 <code>moyu.onboarding.draft</code>，下次进入从中断步继续。</li></ul>
+<h3 id="sec-15">3.2 分步流程（5 步）</h3>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>内容</th><th>必填</th><th>可跳过</th></tr></thead><tbody><tr><td>S1 欢迎</td><td>品牌一句话 + 「仅存本机、不上传」隐私说明</td><td>—</td><td>可「等会再摸」进首页空态</td></tr><tr><td>S2 薪资</td><td>上个月到手月薪（元）；界面明示基准月标签，如「2026 年 10 月到手月薪」</td><td>是</td><td>否</td></tr><tr><td>S3 班次</td><td>上班时间、下班时间（24 小时制滑动选择）；自动识别并标注「次日」</td><td>是</td><td>否</td></tr><tr><td>S4 休息段</td><td>休息起止时间段列表，可 0 段，最多 5 段；支持添加 / 编辑 / 删除</td><td>否</td><td>可「无休息」</td></tr><tr><td>S5 确认</td><td>汇总全部配置 + <strong>计算结果预览</strong>：薪资基准月、计算基准月（本月）、当月工作日天数 D、每日工时 T、时薪、日薪；「完成」写入存储</td><td>—</td><td>否</td></tr></tbody></table></div>
+<p>薪资基准月<strong>自动取当前自然月的上一月且不可手动修改</strong>，只用来标注这份月薪是哪个月的；<strong>工作日天数一律按本月计算</strong>，两者互不干扰（见 D03 与 §5.2）。若用户在 11 月 1 日填写，基准月为 10 月，而计算基准月为 11 月。</p>
+<h3 id="sec-16">3.3 字段规格</h3>
+<div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>范围 / 格式</th><th>存储形式</th><th>说明</th></tr></thead><tbody><tr><td><code>salaryYuan</code></td><td>number</td><td><code>0.01 ~ 9999999.99</code>，最多 2 位小数</td><td>以「分」为整数存储，展示除 100</td><td>到手月薪，单位元</td></tr><tr><td><code>salaryMonth</code></td><td>string</td><td><code>YYYY-MM</code></td><td>—</td><td>自动推导</td></tr><tr><td><code>shiftStartMin</code></td><td>int</td><td><code>0 ~ 1439</code></td><td>自 00:00 起的分钟整数</td><td>24 小时制</td></tr><tr><td><code>shiftEndMin</code></td><td>int</td><td><code>0 ~ 1439</code></td><td>同上</td><td>可 ≤ 起点，表示次日</td></tr><tr><td><code>shiftSpanMin</code></td><td>int</td><td><code>1 ~ 1439</code></td><td>派生：<code>(end − start + 1440) % 1440</code></td><td>跨天班次跨度</td></tr><tr><td><code>rests[]</code></td><td>array</td><td>每项 <code>{startOffsetMin, endOffsetMin}</code></td><td>相对 <code>shiftStart</code> 的偏移，<code>0 ≤ start &lt; end ≤ span</code></td><td>见 §3.6</td></tr><tr><td><code>schemaVersion</code></td><td>int</td><td><code>1</code></td><td>—</td><td>用于迁移</td></tr></tbody></table></div>
+<blockquote><strong>关键设计</strong>：休息段存「相对上班点的偏移」而非墙钟时间。例：班次 22:00–06:00（span=480），休息 00:00–00:30 → <code>startOffset=120, endOffset=150</code>，全部落在 <code>[0, 480]</code> 内，天然支持跨午夜，无需为夜班写第二套逻辑。</blockquote>
+<h3 id="sec-17">3.4 时间选择器交互规格（24 小时制滑动）</h3>
+<div class="table-wrap"><table><thead><tr><th>项</th><th>定义</th></tr></thead><tbody><tr><td>控件</td><td><code>picker-view</code> 两列：时 <code>00–23</code>、分 <code>00,05,10…55</code>；<strong>无 AM/PM、无 12 小时制</strong></td></tr><tr><td>时间粒度</td><td>滑动最小 <strong>5 分钟</strong>，滚动停止后吸附到 5 分钟刻度</td></tr><tr><td>精调</td><td>选择器下方提供 <code>−1 分钟</code> / <code>+1 分钟</code> 按钮，最终精度 <strong>1 分钟</strong>；微调后仍以分钟整数存储</td></tr><tr><td>秒 / 毫秒</td><td>不进入配置，一律视为 <code>00</code></td></tr><tr><td>交互联动</td><td>选定「下班」后，若 <code>end ≤ start</code>，自动显示「次日 HH:MM」标签并说明「已识别为跨天班次」；不强制纠正，交由校验</td></tr><tr><td>休息段输入</td><td>复用同一选择器，但列范围按已定班次<strong>裁剪为 <code>[0, span]</code> 的偏移值</strong>，界面同时显示换算后的墙钟时间</td></tr><tr><td>边界表达</td><td><code>24:00</code> 不被允许；以次日 <code>00:00</code> 表达，内部按偏移 <code>1440</code> 处理并受 <code>span &lt; 1440</code> 约束</td></tr><tr><td>时区</td><td>统一按设备本地时间（中国标准时间 UTC+8）计算；非 +08:00 时给出提示，见 §7</td></tr><tr><td>键盘输入</td><td>不提供自由文本输入时间，避免格式与校验分叉</td></tr></tbody></table></div>
+<h3 id="sec-18">3.5 校验规则表</h3>
+<p>校验时机：字段失焦 + 点击「下一步」+ 最终保存（三层同规则）。错误以字段下方红字 + 轻震动提示，不弹模态框打断。</p>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>对象</th><th>规则</th><th>错误文案</th></tr></thead><tbody><tr><td>V01</td><td>月薪</td><td>非空、为数字、<code>&gt; 0</code>、<code>≤ 9999999.99</code>、最多 2 位小数</td><td>「填个到手月薪吧，只存你手机里」</td></tr><tr><td>V02</td><td>班次</td><td><code>shiftSpanMin &gt; 0</code>（上下班不能相同）</td><td>「上下班时间不能一样哦」</td></tr><tr><td>V03</td><td>班次</td><td><code>shiftSpanMin &lt; 1440</code>，且 <code>span − 休息总时长 ≥ 1</code></td><td>「工作时间得至少留 1 分钟」</td></tr><tr><td>V04</td><td>每段休息</td><td><code>0 ≤ startOffset &lt; endOffset ≤ span</code></td><td>「休息结束要晚于开始」</td></tr><tr><td>V05</td><td>每段休息</td><td>完全落在班次内（由 V04 的 <code>≤ span</code> 保证）</td><td>「休息时段不能跑到上班时间外面」</td></tr><tr><td>V06</td><td>休息段之间</td><td>不得重叠；<strong>自动合并</strong>重叠 / 相邻段，不阻断用户</td><td>toast「已自动合并重叠的休息时段」</td></tr><tr><td>V07</td><td>休息段数量</td><td><code>0 ≤ 段数 ≤ 5</code>，达上限时「添加」置灰</td><td>「最多 5 段休息，够用了」</td></tr><tr><td>V08</td><td>休息总时长</td><td><code>&lt; span</code>，且剩余有效工时 <code>≥ 1</code> 分钟</td><td>「休息比上班还长，那可太爽了（但不行）」</td></tr><tr><td>V09</td><td>时间格式</td><td>所有值为 0–1439 的整数分钟；微调和滑动结果必须落在此区间</td><td>「时间格式不太对，重新选一下」</td></tr><tr><td>V10</td><td>跨天休息</td><td>允许跨午夜，但偏移必须满足 V04/V05；禁止跨出班次尾部</td><td>「跨天的休息段要落在班次里」</td></tr><tr><td>V11</td><td>确认页</td><td>至少完成 S2、S3；S4 允许 0 段</td><td>「还差一步就设置好啦」</td></tr></tbody></table></div>
+<h3 id="sec-19">3.6 休息段处理规则</h3>
+<ol><li><strong>与工作时段的关系</strong>：休息段必须是班次区间的子集，且只在该区间内有效；班次外的休息不存在。</li><li><strong>排序</strong>：列表始终按 <code>startOffsetMin</code> 升序展示。</li><li><strong>重叠 / 相邻</strong>：新增或编辑后执行一次归一化，取所有区间的<strong>并集</strong>；<code>end == next.start</code> 视为相邻，一并合并。合并后若段数减少，给出 toast。</li><li><strong>多段</strong>：最多 5 段（合并后重算数量）；支持任意段数的工作 / 休息交替，计算时逐段扣除（§5.5）。</li><li><strong>总时长上限</strong>：所有段合并后总时长必须 <code>&lt; span</code>。</li><li><strong>合并算法（伪代码）</strong>：</li></ol>
+<pre><code>normalizeRests(rests, span):
+  items = rests.filter(valid(V04,V05)).sort(by startOffset)
+  merged = []
+  for it in items:
+    if merged.empty or it.start &gt; merged.last.end:
+      merged.push({...it})
+    else:
+      merged.last.end = max(merged.last.end, it.end)   // 重叠与相邻都合并
+  assert merged.length &lt;= 5
+  assert sum(end - start) &lt; span
+  return merged</code></pre>
+<ol><li><strong>删除</strong>：单段删除后重新执行归一化；删除不影响进行中的正计时。</li></ol>
+<h3 id="sec-20">3.7 草稿、中断与修改入口</h3>
+<ul><li>每一步的 <code>next</code> 都先写草稿，再跳转；杀进程后可恢复。</li><li>「等会再摸」进入首页空态，两大主指标显示 <code>--</code>，顶部常驻引导条。</li><li>设置页所有字段均可修改，保存前展示「修改后今日数据将按新设置重新计算」提示（D10）。</li><li>设置页必须常驻展示<strong>计算依据</strong>：薪资基准月、工作日天数 D 及其来源、每日工时 T、时薪、日薪。</li></ul>
+<hr>
+<h2 id="sec-21">4. 计时状态流转</h2>
+<h3 id="sec-22">4.1 双计时器模型</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>倒计时（主时间轴）</th><th>正计时（摸鱼计时器）</th></tr></thead><tbody><tr><td>本质</td><td>由配置<strong>自动派生</strong>的排班时钟</td><td>用户<strong>主动控制</strong>的秒表</td></tr><tr><td>数据源</td><td>配置 + 当前绝对时间</td><td><code>startAt</code> 绝对时间戳 + 累计毫秒</td></tr><tr><td>是否可暂停</td><td>不可，随真实时间单向推进</td><td>可开始 / 暂停 / 继续 / 结束 / 重置</td></tr><tr><td>是否影响收益</td><td>是（决定 <code>worked(t)</code>）</td><td>否</td></tr><tr><td>输出</td><td>墙钟倒计时、剩余有效工时、已赚金额</td><td>单次时长、今日累计、记录列表</td></tr></tbody></table></div>
+<p><strong>一个时钟源</strong>：全局唯一的 1s tick 同时驱动两者，避免两个定时器互相漂移。</p>
+<h3 id="sec-23">4.2 倒计时状态机</h3>
+<p><strong>状态集合</strong>：<code>UNINITIALIZED</code>（未初始化）、<code>NOT_STARTED</code>（未上班）、<code>WORKING</code>（工作中）、<code>RESTING</code>（休息中）、<code>OFF_WORK</code>（已下班）、<code>OVERTIME</code>（加班中）、<code>DAY_OFF</code>（非工作日）、<code>NIGHT_SHIFT</code>（跨天夜班进行中，作为 <code>WORKING/RESTING</code> 的归属标记）。</p>
+<p><strong>当前班次实例判定</strong>（用绝对时间戳，跨天自然成立）：</p>
+<pre><code>L          = 当前逻辑工作日（班次起始日）
+shiftStart = localTime(L, shiftStartMin)                    // 绝对时间戳
+shiftEnd   = shiftStart + span * 60_000                    // 可落在 L+1
+today      = 自然日(t)
+
+if !isWorkday(L) and 无进行中的跨天班次: state = DAY_OFF
+elif t &lt; shiftStart:                   state = NOT_STARTED
+elif t &gt;= shiftEnd:                    state = OFF_WORK（或 OVERTIME，见下）
+elif t ∈ 任一休息段:                    state = RESTING
+else:                                  state = WORKING</code></pre>
+<ul><li><strong>跨天</strong>：<code>today ≠ L</code> 但 <code>t &lt; shiftEnd</code> 时，状态仍为 <code>WORKING/RESTING</code>，并打 <code>NIGHT_SHIFT</code> 标记，UI 注明「归属 X 月 X 日班次」；<strong>自然日 00:00 不清零、不重置</strong>。</li><li><strong>非工作日</strong>：只为工作日生成班次实例；若某工作日班次跨天延伸到非工作日凌晨，则该凌晨时段仍属前一班次，凌晨结束后切为 <code>DAY_OFF</code>。</li><li><strong>加班态</strong>：<code>t ≥ shiftEnd</code> 时默认 <code>OFF_WORK</code>；仅当用户主动点击「我还在加班」（或正计时以「加班」标签运行）时进入 <code>OVERTIME</code>，该状态不改变任何金额。</li></ul>
+<p><strong>事件与转移</strong>：</p>
+<div class="table-wrap"><table><thead><tr><th>事件</th><th>触发</th><th>行为</th></tr></thead><tbody><tr><td><code>TICK</code></td><td>每整秒</td><td>用 <code>Date.now()</code> 全量重算所有派生值；仅对变化的展示字段 <code>setData</code></td></tr><tr><td><code>APP_SHOW</code></td><td><code>onShow</code></td><td>立即补算一次 + 重启定时器；检测系统时间跳变</td></tr><tr><td><code>APP_HIDE</code></td><td><code>onHide</code></td><td>清除定时器（不做任何数据扣减）</td></tr><tr><td><code>SETTINGS_SAVED</code></td><td>设置保存</td><td>按新配置重算整日，toast 提示；正计时不受影响</td></tr><tr><td><code>DATE_ROLL</code></td><td>跨 00:00</td><td>自然日切换不触发重置；仅当进入新的 <code>shiftStart</code> 才启用新班次实例</td></tr><tr><td><code>NEW_SHIFT</code></td><td><code>t</code> 到达新工作日 <code>shiftStart</code></td><td><code>worked(t)</code> 归零重新累计；上日数据归档到记录</td></tr><tr><td><code>OVERTIME_ON/OFF</code></td><td>用户点击</td><td>仅切换状态标签与加班计时，不改金额</td></tr></tbody></table></div>
+<h3 id="sec-24">4.3 正计时模式（摸鱼计时器）</h3>
+<p><strong>用途（明确三项）</strong>：</p>
+<ol><li>记录<strong>单次摸鱼</strong>时长：发呆、喝咖啡、上厕所、闲聊、刷手机；</li><li>切换标签后记录<strong>加班时长</strong>或<strong>专注时长</strong>；</li><li>汇总<strong>今日摸鱼总时长</strong>作为趣味数据（不参与任何收益计算）。</li></ol>
+<p><strong>状态与操作规则</strong>：</p>
+<div class="table-wrap"><table><thead><tr><th>状态</th><th>显示</th><th>允许操作</th></tr></thead><tbody><tr><td><code>idle</code> 初始</td><td><code>00:00:00</code></td><td>开始</td></tr><tr><td><code>running</code> 计时中</td><td>实时递增</td><td>暂停、结束、重置、切换标签</td></tr><tr><td><code>paused</code> 已暂停</td><td>冻结值</td><td>继续、结束、重置、切换标签</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>操作</th><th>规则</th></tr></thead><tbody><tr><td>开始</td><td><code>startAt = now</code>，状态 → <code>running</code>；<code>elapsedMs</code> 保留（用于暂停后继续）</td></tr><tr><td>暂停</td><td><code>elapsedMs += now − startAt</code>，状态 → <code>paused</code></td></tr><tr><td>继续</td><td><code>startAt = now</code>，状态 → <code>running</code>（不重置累计）</td></tr><tr><td>结束 / 记一笔</td><td><code>elapsedMs += (running ? now − startAt : 0)</code>；生成一条记录 <code>{dateKey, tag, startAt, endAt, durationMs}</code> 写入存储；本次会话清零回 <code>idle</code></td></tr><tr><td>重置</td><td>二次确认，<strong>仅清零当前会话</strong>（<code>elapsedMs=0, state=idle</code>），<strong>今日累计与历史记录不清零</strong>；<code>running</code> 状态下重置即放弃本次未结束时长</td></tr><tr><td>清空今日累计</td><td>设置页独立入口，二次确认，删除 <code>dateKey == today</code> 的记录</td></tr><tr><td>切换标签</td><td>摸鱼 / 加班 / 专注，任意时刻可切，<strong>不中断计时</strong>，记录以结束时的标签为准</td></tr><tr><td>防抖</td><td>开始 / 暂停 / 结束 / 重置按钮 300ms 防抖，避免连点产生重复记录</td></tr><tr><td>后台 / 锁屏</td><td><strong>不自动暂停</strong>；<code>startAt</code> 为绝对时间戳，<code>onShow</code> 补算后继续 <code>running</code></td></tr><tr><td>冷启动恢复</td><td><code>state/startAt/elapsedMs/tag</code> 持久化，重启后按绝对时间恢复，时长不丢失</td></tr><tr><td>跨天</td><td>会话<strong>不自动结束</strong>；记录按 <code>dateKey = 会话开始时刻的自然日</code> 归档，今日累计 = <code>sum(durationMs where dateKey == today)</code>，无需定时任务</td></tr></tbody></table></div>
+<blockquote>与「休息段」的区别：<strong>休息段是预设的、不扣钱的工作时间；正计时是用户临时起意的摸鱼记录</strong>。两者概念独立，v1 默认不联动。设置项「进入休息段时自动开始摸鱼计时」默认关闭；开启后也只影响正计时，绝不反向修改收益。</blockquote>
+<h3 id="sec-25">4.4 两者共存的明确规则</h3>
+<ol><li>共享唯一 1s 时钟源；各自独立状态机，互不阻塞、互不写入对方数据。</li><li>首页主卡 A/B 属于倒计时时间轴，正计时为独立卡片，同屏共存、可折叠，不遮挡主指标。</li><li>正计时的数据（<code>elapsedMs</code>、记录、标签）<strong>不参与</strong> <code>worked(t)</code>、<code>earned(t)</code>、进度环的任何计算。</li><li>倒计时的状态变化（进入休息、下班、跨天、非工作日）<strong>不自动启停</strong>正计时，反之亦然。</li><li>页面 <code>onHide/onShow</code>、系统时间跳变、配置变更时，两者同步按绝对时间重建，行为一致。</li><li>正计时全屏展开时，主卡 A/B 仍在小窗持续更新（或折叠为顶部两数条），不因展开而暂停。</li></ol>
+<h3 id="sec-26">4.5 时钟源与刷新策略</h3>
+<ul><li>用 <code>setTimeout</code> 对齐到下一整秒后启动 <code>setInterval(1000)</code>，避免累计漂移。</li><li>每次 tick <strong>读取 <code>Date.now()</code> 全量重算</strong>，不使用 <code>+= 1</code>。</li><li><code>OFF_WORK</code> / <code>DAY_OFF</code> 状态下降频：停止 1s 定时器，仅在 <code>onShow</code> 与状态切换时刷新（省电）。</li><li>检测到 <code>|now − lastNow|</code> 异常（见 §7）时先提示再重算。</li></ul>
+<hr>
+<h2 id="sec-27">5. 计算规则</h2>
+<h3 id="sec-28">5.1 输入与常量</h3>
+<pre><code>salary       : 上月到手月薪（元，2 位小数）
+D            : 薪资基准月「整月」工作日天数
+span         : (下班 − 上班) 分钟，跨天取 (end − start + 1440) % 1440
+restTotal    : 归一化后所有休息段时长之和（分钟）
+T_seconds    : (span − restTotal) × 60          // 每天工作时间，单位秒</code></pre>
+<h3 id="sec-29">5.2 「当月工作日天数」取值口径（重点，v1.1 修订）</h3>
+<p><strong>两个月份必须分开，不能混用</strong>：</p>
+<div class="table-wrap"><table><thead><tr><th>概念</th><th>取值</th><th>用途</th></tr></thead><tbody><tr><td>薪资基准月 <code>salaryMonth</code></td><td>填写时的上一自然月（如 2026-11 填写 → <code>2026-10</code>）</td><td><strong>仅标注</strong>这份到手月薪是哪个月的；用于跨月提示与设置页展示，<strong>不进入任何计算公式</strong></td></tr><tr><td>计算基准月 <code>workdayMonth</code></td><td><strong>当前自然月（本月）</strong></td><td>「当月工作日天数 D」的取值月份，参与时薪、日薪、秒薪的全部计算</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>候选口径</th><th>说明</th><th>评估</th></tr></thead><tbody><tr><td><strong>① 本月整月工作日数</strong></td><td><code>D = count(d ∈ 本月 : isWorkday(d))</code></td><td>✅ <strong>v1.1 采用</strong>：符合「当月工作日天数」的字面口径，每月 1 日自动按新月重算</td></tr><tr><td>② 薪资基准月（上月）整月工作日数</td><td>与分子同月</td><td>❌ v1.0 曾用，已废弃：需求明确分母按本月</td></tr><tr><td>③ 本月截至今日已过工作日数</td><td>逐日累加</td><td>❌ 时薪每天变，违反「整月」口径</td></tr><tr><td>④ 固定 21.75 天</td><td>法定月计薪天数</td><td>⚠️ 仅作节假日数据缺失时的兜底</td></tr></tbody></table></div>
+<p><strong>结论</strong>：<code>D = count(d ∈ 当前自然月 : isWorkday(d))</code>，取<strong>整月</strong>，不随当前日期变化；设置页与引导确认页须<strong>同时显示</strong>「薪资基准月」和「计算基准月」两个值，避免口径混淆。示例数字以内置节假日表实算为准，不得硬编码。以 2026-11-09 为例：薪资基准月 <code>2026-10</code>（月薪来源），计算基准月 <code>2026-11</code>，<code>D = 21</code>；若月薪 10000 元、每天工作 8 小时，则时薪 <code>= 10000 / 21 / 8 ≈ 59.52 元/h</code>，日薪 <code>= 10000 / 21 ≈ 476.19 元</code>。</p>
+<blockquote><strong>跨月行为</strong>：分子（上月到手月薪）与分母（本月工作日天数）允许不同月，这是本版本的明确口径。每月 1 日起 D 自动切换为新月的整月工作日数，时薪、日薪、已赚金额随之重算；薪资数值保持到用户重新填写为止，首页会提示「当前基于 X 的到手月薪计算」。</blockquote>
+<h3 id="sec-30">5.3 工作日、节假日与非工作日</h3>
+<div class="table-wrap"><table><thead><tr><th>规则</th><th>定义</th></tr></thead><tbody><tr><td>基础工作日</td><td>周一至周五</td></tr><tr><td>法定节假日</td><td>从「放假日」中剔除，不计入 D</td></tr><tr><td>调休补班日</td><td>周末但需上班的日期，<strong>计入</strong> D 且当天正常生成班次、正常计算收益</td></tr><tr><td>判定函数</td><td><code>isWorkday(date)</code>：先查表命中放假/补班，未命中则按周一至周五</td></tr><tr><td>数据源</td><td>内置 <code>holidays-YYYY.json</code>（依据国务院办公厅年度放假安排），随版本更新次年数据；<code>isWorkday</code> 只读本地表，不强依赖网络</td></tr><tr><td>缺失降级</td><td>该年份表不存在 → 降级为「周一至周五」并在设置页提示「工作日按周一至周五估算」；仍失败 → 兜底 <code>D = 21.75</code> 并显著标注</td></tr><tr><td>非工作日打开</td><td>不生成班次实例，<code>earned = 0</code>，主页面进入 <code>DAY_OFF</code> 状态（§6.3）</td></tr><tr><td>极端值</td><td><code>D = 0</code> 时兜底 <code>21.75</code>，避免除零，并提示用户</td></tr></tbody></table></div>
+<h3 id="sec-31">5.4 核心公式（严格遵循）</h3>
+<pre><code>时薪 W   = salary / D / (T_seconds / 3600)          // 元/小时
+秒薪 R   = salary / (D × T_seconds)                  // 元/秒，等价于 W / 3600
+日薪 P   = salary / D                                // 满勤收入，见 §5.6
+worked(t)= 有效工作秒数（§5.5）
+earned(t)= worked(t) × R                             // 当日已赚金额</code></pre>
+<ul><li><code>D</code> 取自<strong>当前自然月（本月）</strong>的整月工作日天数，与 <code>salaryMonth</code> 无关（见 §5.2）。</li><li>公式中<strong>不含</strong>任何加班倍率、绩效系数、节假日倍率、四舍五入中间值。</li><li>加班：<code>t &gt; shiftEnd</code> 时 <code>worked(t)</code> 被 <code>min(t, shiftEnd)</code> 截断，故 <code>earned</code> 封顶为 <code>P</code>，不再增长（D06）。</li><li>休息段：<code>worked(t)</code> 只累计非休息时段，<code>RESTING</code> 状态下金额自然冻结。</li></ul>
+<h3 id="sec-32">5.5 有效工时计算（伪代码）</h3>
+<p>所有区间使用<strong>绝对时间戳（毫秒）</strong>，跨天班次与跨午夜休息段自动成立：</p>
+<pre><code>// 把配置的相对偏移展开为当次班次的绝对区间
+restIntervals = rests.map(r =&gt; ({
+  start: shiftStart + r.startOffsetMin * 60000,
+  end:   shiftStart + r.endOffsetMin   * 60000
+}))
+
+workedSeconds(t):
+  upper = min(t, shiftEnd)                       // 下班后截断 → 加班不增收益
+  if upper &lt;= shiftStart: return 0
+  gross = (upper - shiftStart) / 1000
+  restElapsed = Σ over restIntervals:
+      max(0, (min(upper, rest.end) − rest.start) / 1000)   // 仅扣已发生的休息
+  return clamp(gross − restElapsed, 0, T_seconds)</code></pre>
+<ul><li><code>RESTING</code> 时 <code>upper</code> 落在休息段内，新增秒数被 <code>restElapsed</code> 抵消，<code>workedSeconds</code> 保持不变 → 金额冻结。</li><li><code>OFF_WORK</code> 时 <code>upper = shiftEnd</code>，<code>workedSeconds = T_seconds</code> → <code>earned = P</code>。</li><li>多段休息由 <code>Σ</code> 逐段扣除，天然支持交替。</li></ul>
+<h3 id="sec-33">5.6 恒等式与自检（可写进单元测试）</h3>
+<div class="table-wrap"><table><thead><tr><th>恒等式</th><th>意义</th></tr></thead><tbody><tr><td><code>earned(shiftEnd) = salary / D</code></td><td><strong>日薪与每天工作时长、休息时长无关</strong>：<code>T × R = salary/D</code>。配置页展示的「今日目标」即为此值</td></tr><tr><td><code>progress = worked(t) / T_seconds = earned(t) / P</code></td><td>进度环与金额严格同源，不允许两套算法</td></tr><tr><td><code>earned(t) + 剩余可赚 = P</code>，其中 <code>剩余可赚 = (T_seconds − worked(t)) × R</code></td><td>副指标「还能赚 ¥X」的计算依据</td></tr><tr><td><code>墙钟倒计时 ≥ 剩余有效工时</code></td><td>因为墙钟口径含未来休息段；两者差值 = 尚未发生的休息总时长</td></tr></tbody></table></div>
+<blockquote>这组恒等式是验收的核心：任何时刻把主卡 A 的剩余有效工时、主卡 B 的金额、进度环百分比代入，必须同时成立。</blockquote>
+<h3 id="sec-34">5.7 金额精度</h3>
+<div class="table-wrap"><table><thead><tr><th>项</th><th>规则</th></tr></thead><tbody><tr><td>内部计算</td><td><code>Number</code>（双精度）即可：每个 tick <strong>全量重算</strong>，误差不累积，无需高精度库</td></tr><tr><td>中间值</td><td>时薪、秒薪<strong>不做中间舍入</strong>，保留全精度参与乘法</td></tr><tr><td>展示</td><td>统一保留 <strong>2 位小数</strong>，四舍五入 <code>ROUND_HALF_UP</code> 到「分」；<code>¥</code> 前缀 + 千分位</td></tr><tr><td>隐藏小数</td><td>设置页「计算依据」中时薪展示 4 位小数以便核对，但计算仍用全精度</td></tr><tr><td>单位</td><td>人民币元（¥），不涉及外币与汇率</td></tr><tr><td>极小值</td><td><code>earned &lt; 0.01</code> 展示 <code>¥0.00</code>，不展示 <code>¥0.001</code> 类数值</td></tr><tr><td>展示层</td><td>在 JS 中格式化为字符串后写入 <code>data</code>，WXML 不做数字格式化</td></tr></tbody></table></div>
+<h3 id="sec-35">5.8 刷新频率</h3>
+<div class="table-wrap"><table><thead><tr><th>项</th><th>频率</th><th>说明</th></tr></thead><tbody><tr><td>全局时钟 tick</td><td><strong>1 秒</strong>，对齐整秒</td><td>倒计时、正计时、金额、进度环同源更新</td></tr><tr><td>金额展示</td><td>每秒重算，但<strong>仅当格式化后的 2 位小数字符串变化</strong>才 <code>setData</code></td><td>避免无意义渲染；秒薪较小时可能数秒才变 1 分</td></tr><tr><td>倒计时</td><td>每秒更新 <code>HH:MM:SS</code></td><td>等宽数字，不跳动</td></tr><tr><td>正计时</td><td>每秒更新 <code>HH:MM:SS</code></td><td>后台恢复按绝对时间补算</td></tr><tr><td>后台 / 锁屏</td><td>停止 tick</td><td><code>onHide</code> 清定时器；<code>onShow</code> 立即全量补算，<strong>金额不丢失、不多算</strong></td></tr><tr><td>已下班 / 非工作日</td><td>停止 1s tick</td><td>仅 <code>onShow</code>、状态切换、配置变更时刷新</td></tr><tr><td>配置 / 节假日表</td><td>非定时，事件驱动</td><td>保存设置、跨月首次打开时重算 D</td></tr></tbody></table></div>
+<h3 id="sec-36">5.9 加班与非工作日数值</h3>
+<div class="table-wrap"><table><thead><tr><th>场景</th><th><code>worked(t)</code></th><th><code>earned(t)</code></th><th>倒计时</th></tr></thead><tbody><tr><td>加班（<code>t &gt; shiftEnd</code>）</td><td>封顶 <code>T_seconds</code></td><td>封顶 <code>P</code></td><td><code>00:00:00</code>，另显「已加班 HH:MM」</td></tr><tr><td>非工作日 / 节假日</td><td><code>0</code></td><td><code>¥0.00</code></td><td><code>--:--:--</code>，显「距下个工作日 X」</td></tr><tr><td>调休补班日</td><td>正常累计</td><td>正常累计</td><td>正常递减</td></tr></tbody></table></div>
+<h3 id="sec-37">5.10 配置变更与跨月</h3>
+<ul><li><strong>改薪资 / 班次 / 休息段</strong>：<code>D、T、R、P</code> 全部重算，并<strong>按新配置重算整日</strong> <code>earned(t)</code>（因为 <code>earned</code> 完全由配置与绝对时间决定）。保存时 toast「已按新设置重新计算今日数据」。</li><li><strong>跨月</strong>：薪资基准月固定为填写时的上月，薪资数值<strong>沿用旧值</strong>并在界面标注「基于 2026 年 10 月薪资」；但 <strong>D 每月 1 日自动按新的当前月重算</strong>，时薪、日薪、已赚金额随之变化，无需用户操作。每月 1 日首次打开仍提示「要不要更新上月到手月薪？」，用户可忽略。</li><li><strong>重新填写薪资</strong>：薪资基准月自动更新为新填写时的上月；D 始终按当前月计算，不受填写动作影响。</li></ul>
+<hr>
+<h2 id="sec-38">6. 主页面展示逻辑</h2>
+<h3 id="sec-39">6.1 两大主指标定义</h3>
+<div class="table-wrap"><table><thead><tr><th>指标</th><th>口径</th><th>展示格式</th><th>数据来源</th></tr></thead><tbody><tr><td><strong>距离下班倒计时</strong>（主卡 A）</td><td>墙钟：<code>max(0, shiftEnd − t)</code></td><td><code>HH:MM:SS</code>，超 24h 显示 <code>HH</code> 不截断</td><td>班次绝对区间</td></tr><tr><td><strong>当日已赚金额</strong>（主卡 B）</td><td><code>earned(t) = worked(t) × R</code></td><td><code>¥ 000.00</code>，等宽数字</td><td>§5.4</td></tr></tbody></table></div>
+<p>主卡 A 副行固定展示：<code>剩余有效工时 HH:MM · 还能赚 ¥X</code>；主卡 B 副行固定展示：<code>时薪 ¥W/h · 今日目标 ¥P</code>。这样「墙钟倒计时」与「有效工时」双口径并列、可解释，避免用户误以为金额算错。</p>
+<h3 id="sec-40">6.2 状态 × 文案 × 数值 × 更新行为（总表）</h3>
+<div class="table-wrap"><table><thead><tr><th>状态</th><th>判定</th><th>距离下班倒计时</th><th>当日已赚金额</th><th>进度环 / 副指标</th><th>状态文案（示例）</th><th>更新行为</th></tr></thead><tbody><tr><td>未初始化</td><td>无配置</td><td><code>--:--:--</code></td><td><code>¥ --</code></td><td>不展示</td><td>「先花 30 秒告诉我你的班次吧」</td><td>不启动 tick；顶部常驻引导条</td></tr><tr><td>未上班</td><td><code>t &lt; shiftStart</code>，L 为工作日</td><td><code>shiftEnd − t</code>（含上班前时段，数值 &gt; 满勤工时）</td><td><code>¥0.00</code></td><td>0%，副行显示今日全长 <code>T</code></td><td>「还没开工，钱已经在排队了」</td><td>每秒递减倒计时；金额保持 0</td></tr><tr><td>工作中</td><td>班次内且非休息段</td><td>每秒递减</td><td>每秒递增（2 位小数变化才刷新）</td><td>进度环随 <code>worked/T</code> 增长</td><td>「搬砖中，钱在慢慢涨」</td><td>1s 全量重算；<code>ON_SHOW</code> 补算</td></tr><tr><td>休息中</td><td>班次内且落在休息段</td><td><strong>继续递减</strong>（不暂停）</td><td><strong>冻结不变</strong></td><td>进度环暂停增长并显示「休息中」</td><td>「合法摸鱼时间：计时不停，钱包暂停」</td><td>倒计时递减；金额、进度不更新</td></tr><tr><td>已下班</td><td><code>t ≥ shiftEnd</code> 且未开加班态</td><td><code>00:00:00</code></td><td><code>= P</code>（封顶，不再变化）</td><td>100%，副行「今日已赚满」</td><td>「今日收工，钱赚完啦」</td><td>停止 1s tick，仅 <code>onShow</code> 刷新</td></tr><tr><td>加班中</td><td>已下班且用户开启加班标记</td><td><code>00:00:00</code>，另显「已加班 HH:MM」</td><td><code>= P</code>（严格封顶，不加倍）</td><td>100%，灰色</td><td>「人还在，钱不加，记得早点走」</td><td>加班计时每秒更新；<strong>金额不更新</strong></td></tr><tr><td>跨天 / 夜班</td><td><code>t &lt; shiftEnd</code> 且 <code>today ≠ L</code></td><td>按次日 <code>shiftEnd</code> 正常递减</td><td>按 <code>worked(t)</code> 正常累计</td><td>正常增长</td><td>「夜班进行中 · 归属 X 月 X 日班次」</td><td>过 00:00 <strong>不清零、不重置</strong>；金额连续</td></tr><tr><td>非工作日 / 节假日</td><td>当天非工作日且无跨天班次</td><td><code>--:--:--</code></td><td><code>¥0.00</code></td><td>不展示进度环</td><td>「今天不搬砖，钱包也放假」</td><td>不启动 1s tick</td></tr><tr><td>调休补班日</td><td>周末但为补班日</td><td>正常递减</td><td>正常累计</td><td>正常增长</td><td>「补班日，钱照赚（辛苦了）」</td><td>同「工作中」</td></tr></tbody></table></div>
+<h3 id="sec-41">6.3 文案库（每状态 2–3 条随机轮播，避免重复疲劳）</h3>
+<div class="table-wrap"><table><thead><tr><th>状态</th><th>备选文案</th></tr></thead><tbody><tr><td>未上班</td><td>还没开工，钱已经在排队了 / 距离开工还有一会儿，先喘口气 / 今天的钱，从上班那一刻开始算</td></tr><tr><td>工作中</td><td>搬砖中，钱在慢慢涨 / 每一秒都在进账，虽然不多 / 看，又多了几分钱</td></tr><tr><td>休息中</td><td>合法摸鱼时间：计时不停，钱包暂停 / 休息中，数字也需要歇会儿 / 这段不算钱，但算快乐</td></tr><tr><td>已下班</td><td>今日收工，钱赚完啦 / 今天的 KPI：准时下班，达成 / 关掉页面，去过自己的生活</td></tr><tr><td>加班中</td><td>人还在，钱不加，记得早点走 / 加班时长记着呢，别熬太晚 / 这部分不算钱，但算辛苦</td></tr><tr><td>非工作日</td><td>今天不搬砖，钱包也放假 / 好好躺，明天再赚 / 休息日不产生收益，但产生快乐</td></tr><tr><td>跨天夜班</td><td>夜班进行中，归属 X 月 X 日班次 / 别人睡了，你的数字还在涨 / 过零点不清零，放心</td></tr></tbody></table></div>
+<blockquote>文案约束：不出现「摸鱼被抓」「老板」「绩效」「效率」等制造焦虑或职场对立的词；不出现任何金额的具体数字（数字由组件渲染，避免文案与数据不一致）。</blockquote>
+<h3 id="sec-42">6.4 交互与动效</h3>
+<ul><li>点击主卡 B → 弹出「这个数字怎么来的」说明层，逐行展示 <code>salary / D / T / R / earned</code> 的代入过程。</li><li>金额小数点后两位变化时做 150ms 轻微上翻动效；不闪烁、不弹跳。</li><li>进度环与金额同源，禁止独立动画造成视觉不一致。</li><li>状态切换时文案淡入淡出 200ms；同一状态内文案每 5 分钟轮换一次（不随 tick 变）。</li><li>正计时卡片展开为半屏，主卡 A/B 折叠为顶部两数条持续更新。</li><li>底部按钮点击时先 <code>scale(0.94)</code> 缩小（90ms），松开后按 260ms 弹性曲线回弹；用 <code>hover-class</code> + WXSS <code>transition</code> 实现，不引入图片资源或额外 JS 定时器。</li></ul>
+<h3 id="sec-43">6.5 空态与降级展示</h3>
+<ul><li>未初始化：两大主指标显示 <code>--</code>，引导条常驻，点击直达初始化。</li><li>节假日数据缺失：金额照常显示，设置页增加「工作日按周一至周五估算」黄色提示条。</li><li>系统时间异常：顶部临时提示条，不遮挡主指标。</li></ul>
+<hr>
+<h2 id="sec-44">7. 边界与异常处理</h2>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>场景</th><th>处理规则</th><th>用户提示</th></tr></thead><tbody><tr><td>E01</td><td>切后台 / 锁屏</td><td><code>onHide</code> 停 tick；<code>onShow</code> 用绝对时间全量补算，不依赖累计</td><td>无感</td></tr><tr><td>E02</td><td>小程序被销毁 / 冷启动</td><td>配置与正计时 <code>startAt</code> 持久化，重启按绝对时间重建</td><td>无感</td></tr><tr><td>E03</td><td>系统时间被手动改 / 跳变</td><td>记录 <code>lastNow</code>，跳变 <code>&gt; 5 分钟</code> 时按当前时间重算并提示；不做数据回滚</td><td>「检测到系统时间变化，已按当前时间重算」</td></tr><tr><td>E04</td><td>设备时区非 UTC+8</td><td>仍按设备本地时间计算，避免与用户看到的时钟不一致</td><td>「当前按设备本地时间计算」</td></tr><tr><td>E05</td><td>跨天班次过 00:00</td><td>按班次实例处理，不清零、不重置；金额归属班次起始日</td><td>「夜班进行中 · 归属 X 月 X 日」</td></tr><tr><td>E06</td><td>休息段与班次边界重叠 / 越界</td><td>V04/V05 拦截，不允许保存</td><td>见 §3.5</td></tr><tr><td>E07</td><td>休息段互相重叠 / 相邻</td><td>自动合并为并集，不阻断</td><td>「已自动合并重叠的休息时段」</td></tr><tr><td>E08</td><td>休息总时长 ≥ 班次跨度</td><td>V08 拦截</td><td>见 §3.5</td></tr><tr><td>E09</td><td>月薪为 0 / 负数 / 非数字 / 超大</td><td>V01 拦截，禁止进入下一步</td><td>见 §3.5</td></tr><tr><td>E10</td><td>节假日表缺失年份</td><td>降级「周一至周五」；仍失败兜底 <code>D = 21.75</code></td><td>设置页黄色提示条</td></tr><tr><td>E11</td><td><code>D = 0</code>（极端配置）</td><td>兜底 <code>21.75</code>，避免除零</td><td>同上</td></tr><tr><td>E12</td><td>修改配置</td><td>整日按新配置重算，toast 明示；正计时记录不变</td><td>「已按新设置重新计算今日数据」</td></tr><tr><td>E13</td><td>跨月未更新薪资</td><td>沿用旧薪资并标注基准月；<strong>D 自动按新月重算</strong>，时薪随之变化；每月 1 日提示更新</td><td>「要不要更新上月到手月薪？」</td></tr><tr><td>E14</td><td>定时器漂移 / 秒级抖动</td><td>对齐整秒 + 每次读 <code>Date.now()</code> 全量重算</td><td>无感</td></tr><tr><td>E15</td><td>非工作日 / 节假日打开</td><td><code>DAY_OFF</code> 状态，金额 0，倒计时 <code>--:--:--</code></td><td>「今天不搬砖」</td></tr><tr><td>E16</td><td>调休补班日</td><td>视为工作日，正常生成班次与收益</td><td>「补班日，钱照赚」</td></tr><tr><td>E17</td><td>连点开始 / 暂停 / 重置</td><td>按钮 300ms 防抖；重置二次确认</td><td>二次确认弹窗</td></tr><tr><td>E18</td><td>用户清缓存 / 删除小程序数据</td><td>检测无配置 → 回到初始化流程</td><td>无感</td></tr><tr><td>E19</td><td>金额浮点尾差</td><td>中间值不舍入，展示层统一 <code>ROUND_HALF_UP</code></td><td>无感</td></tr><tr><td>E20</td><td>正计时跨自然日</td><td>会话不中断；记录按 <code>dateKey = 开始日</code> 归档</td><td>无感</td></tr></tbody></table></div>
+<hr>
+<h2 id="sec-45">8. 数据模型与存储</h2>
+<h3 id="sec-46">8.1 配置对象 <code>moyu.settings.v1</code></h3>
+<pre><code>{
+  schemaVersion: 1,
+  salaryCent: 1000000,          // 10000.00 元，以「分」存储
+  salaryMonth: "2026-10",          // 薪资基准月（月薪来源），不参与工作日计算
+  shiftStartMin: 540,           // 09:00
+  shiftEndMin: 1080,            // 18:00
+  shiftSpanMin: 540,            // 派生
+  rests: [{ startOffsetMin: 180, endOffsetMin: 240 }],   // 12:00–13:00
+  autoRestLink: false,          // 进入休息段自动开始摸鱼计时，默认关
+  updatedAt: 1731148800000
+}</code></pre>
+<h3 id="sec-47">8.2 运行时与记录</h3>
+<pre><code>moyu.stopwatch.v1 = {
+  state: "idle | running | paused",
+  startAt: 1731148800000,       // 绝对时间戳，running 时有效
+  elapsedMs: 0,
+  tag: "moyu | overtime | focus"
+}
+
+moyu.records.v1 = [
+  { dateKey: "2026-11-09", tag: "moyu",
+    startAt: ..., endAt: ..., durationMs: 420000 }
+]
+
+moyu.runtime.v1 = { lastNow: ..., lastShiftDate: "2026-11-09" }
+moyu.onboarding.draft = { step: 3, form: {...} }</code></pre>
+<h3 id="sec-48">8.3 节假日表 <code>assets/holidays-YYYY.json</code></h3>
+<pre><code>{ "year": 2026,
+  "holidays": ["2026-10-01", ...],   // 法定放假，不计工作日
+  "workdays": ["2026-10-10", ...] }  // 调休补班，计工作日</code></pre>
+<p><code>isWorkday(d)</code> 优先查 <code>workdays</code>、再查 <code>holidays</code>，都未命中则按 <code>getDay() ∈ [1,5]</code>。</p>
+<h3 id="sec-49">8.4 版本迁移</h3>
+<ul><li>读取时按 <code>schemaVersion</code> 迁移；无法识别的版本 → 备份原值、重置为默认并引导用户重新填写，不静默丢弃。</li><li><code>salaryCent</code> 与展示值的换算只在格式化层进行，计算层统一用「元」的 <code>Number</code>（<code>salaryCent / 100</code>）。</li></ul>
+<hr>
+<h2 id="sec-50">9. 验收标准</h2>
+<h3 id="sec-51">9.1 计算验收（示例配置）</h3>
+<blockquote>示例为便于验算，mock 掉节假日表使 <code>D = 20</code>；真实运行时 D 取<strong>当前自然月</strong>的整月工作日数（见 §5.2），例如 2026-11 为 21 天。以下数字仅用于验证公式与状态逻辑。</blockquote>
+<pre><code>salary = 10000.00 元，D = 20，09:00–18:00，休息 12:00–13:00
+span = 540 min，restTotal = 60 min，T = 8 h = 28800 s
+时薪 W = 10000 / 20 / 8          = 62.50 元/h
+秒薪 R = 10000 / (20 × 28800)    ≈ 0.0173611111 元/s
+日薪 P = 10000 / 20              = 500.00 元</code></pre>
+<div class="table-wrap"><table><thead><tr><th>用例</th><th>时刻</th><th>期望「每日已赚」</th><th>期望「距离下班倒计时」</th><th>状态</th></tr></thead><tbody><tr><td>AC-C01</td><td>09:00:00</td><td><code>¥0.00</code></td><td><code>09:00:00</code></td><td>未上班→工作中</td></tr><tr><td>AC-C02</td><td>10:00:00</td><td><code>¥62.50</code></td><td><code>08:00:00</code></td><td>工作中</td></tr><tr><td>AC-C03</td><td>12:00:00</td><td><code>¥187.50</code></td><td><code>06:00:00</code></td><td>进入休息</td></tr><tr><td>AC-C04</td><td>12:30:00</td><td><code>¥187.50</code>（冻结）</td><td><code>05:30:00</code>（继续走）</td><td>休息中</td></tr><tr><td>AC-C05</td><td>14:00:00</td><td><code>¥250.00</code></td><td><code>04:00:00</code></td><td>工作中</td></tr><tr><td>AC-C06</td><td>18:00:00</td><td><code>¥500.00</code></td><td><code>00:00:00</code></td><td>已下班</td></tr><tr><td>AC-C07</td><td>19:30:00（加班）</td><td><code>¥500.00</code>（封顶）</td><td><code>00:00:00</code> + 已加班 <code>01:30:00</code></td><td>加班中</td></tr><tr><td>AC-C08</td><td>任意时刻</td><td><code>剩余可赚 = 500.00 − 已赚</code>；<code>进度 = 已赚 / 500.00</code></td><td>墙钟 ≥ 剩余有效工时</td><td>恒等式成立</td></tr></tbody></table></div>
+<p>跨天用例（验证 §5.5）：</p>
+<pre><code>22:00–06:00（span=480），休息 00:00–00:30（offset 120–150）
+T = 450 min = 7.5 h，D = 20 → W = 10000/20/7.5 ≈ 66.6667 元/h，P 仍 = 500.00 元</code></pre>
+<div class="table-wrap"><table><thead><tr><th>用例</th><th>时刻</th><th>期望</th><th>说明</th></tr></thead><tbody><tr><td>AC-C09</td><td>次日 00:00:00</td><td><code>¥133.33</code></td><td>已工作 2h = 2/7.5 × 500</td></tr><tr><td>AC-C10</td><td>次日 00:15:00</td><td><code>¥133.33</code>（冻结）</td><td>跨午夜休息段内</td></tr><tr><td>AC-C11</td><td>次日 00:30:00 后</td><td>继续增长，过 00:00 <strong>不清零</strong></td><td>逻辑工作日归属前一日</td></tr><tr><td>AC-C12</td><td>次日 06:00:00</td><td><code>¥500.00</code></td><td>恒等式 <code>earned(shiftEnd) = P</code></td></tr></tbody></table></div>
+<h3 id="sec-52">9.2 功能与交互验收</h3>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>用例</th><th>期望结果</th></tr></thead><tbody><tr><td>AC-F01</td><td>首次启动</td><td>进入 5 步引导；可「等会再摸」进首页空态</td></tr><tr><td>AC-F02</td><td>月薪输入 <code>abc</code> / <code>0</code> / <code>-1</code> / <code>1.234</code> / <code>10000000</code></td><td>全部被 V01 拦截并给出对应文案</td></tr><tr><td>AC-F03</td><td>时间选择器</td><td>仅 24 小时制两列；5 分钟吸附；<code>±1</code> 分钟可精调到任意整分</td></tr><tr><td>AC-F04</td><td>上班 = 下班</td><td>V02 拦截</td></tr><tr><td>AC-F05</td><td>下班早于上班（22:00→06:00）</td><td>自动标注「次日 06:00」，保存成功，跨天用例通过</td></tr><tr><td>AC-F06</td><td>休息段 12:00–13:00 与 12:30–14:00</td><td>自动合并为 12:00–14:00，toast 提示，无重叠残留</td></tr><tr><td>AC-F07</td><td>休息段 08:00–09:00（班次外，09:00 上班）</td><td>V05 拦截</td></tr><tr><td>AC-F08</td><td>添加第 6 段休息</td><td>「添加」置灰，V07 提示</td></tr><tr><td>AC-F09</td><td>休息总时长 ≥ span</td><td>V08 拦截</td></tr><tr><td>AC-F10</td><td>引导中途杀进程重启</td><td>从中断步恢复，草稿不丢</td></tr><tr><td>AC-F11</td><td>确认页</td><td>显示 D、T、时薪、日薪，且与 §9.1 手算一致</td></tr><tr><td>AC-F12</td><td>正计时：开始→暂停→继续→结束</td><td>时长 = 实际 running 累计；暂停不计；生成 1 条记录</td></tr><tr><td>AC-F13</td><td>正计时：重置</td><td>仅当前会话清零，今日累计与记录保留</td></tr><tr><td>AC-F14</td><td>正计时运行中切后台 10 分钟后返回</td><td>时长包含后台时间（绝对时间戳补算），状态仍 <code>running</code></td></tr><tr><td>AC-F15</td><td>正计时运行中重启小程序</td><td>恢复为 <code>running</code> 且时长连续，不丢失</td></tr><tr><td>AC-F16</td><td>正计时跨 00:00 未结束</td><td>会话不中断；记录归入会话开始日</td></tr><tr><td>AC-F17</td><td>倒计时与正计时同时运行</td><td>两数独立更新；正计时开始/暂停不影响金额与倒计时</td></tr><tr><td>AC-F18</td><td>进入休息段（默认设置）</td><td>正计时不自动开始；开启 <code>autoRestLink</code> 后才自动开始</td></tr><tr><td>AC-F19</td><td>两数共存于首屏</td><td>主卡 A/B 为页面最大字号，正计时卡片折叠不遮挡</td></tr><tr><td>AC-F20</td><td>分别以 2026-11 与 2026-12 运行</td><td>计算基准月随之变为 <code>2026-11</code>/<code>2026-12</code>，D 分别为 21 与 12 月实算值；薪资基准月保持 <code>2026-10</code> 不变</td></tr></tbody></table></div>
+<h3 id="sec-53">9.3 状态展示验收</h3>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>用例</th><th>期望</th></tr></thead><tbody><tr><td>AC-S01</td><td>未上班 08:00</td><td>倒计时 <code>10:00:00</code>（到 18:00），金额 <code>¥0.00</code>，文案为未上班态</td></tr><tr><td>AC-S02</td><td>休息中</td><td>倒计时递减、金额冻结、进度环暂停、文案为休息态</td></tr><tr><td>AC-S03</td><td>已下班</td><td>倒计时 <code>00:00:00</code>、金额封顶、停止 1s tick</td></tr><tr><td>AC-S04</td><td>非工作日</td><td>倒计时 <code>--:--:--</code>、金额 <code>¥0.00</code>、休息日文案</td></tr><tr><td>AC-S05</td><td>调休补班日</td><td>与工作日完全一致</td></tr><tr><td>AC-S06</td><td>跨天夜班 00:00</td><td>不清零、不重置，标注归属班次日</td></tr><tr><td>AC-S07</td><td>所有状态</td><td>文案不含具体金额数字；金额仅由组件渲染</td></tr></tbody></table></div>
+<h3 id="sec-54">9.4 边界、性能与发布前检查</h3>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>检查项</th><th>标准</th></tr></thead><tbody><tr><td>AC-E01</td><td>后台 30 分钟后返回</td><td>金额与手算一致，无漏算 / 多算</td></tr><tr><td>AC-E02</td><td>系统时间前调 / 后调 1 小时</td><td>触发提示并按当前时间重算，不崩溃</td></tr><tr><td>AC-E03</td><td>节假日表删除</td><td>降级周一至周五并提示，<code>D</code> 仍有效</td></tr><tr><td>AC-E04</td><td>修改薪资后返回首页</td><td>整日按新配置重算且有 toast</td></tr><tr><td>AC-E05</td><td>连续 tick 1 小时</td><td><code>setData</code> 仅更新变化字段，页面无卡顿、内存无持续增长</td></tr><tr><td>AC-E06</td><td>数字跳动</td><td>等宽字体，秒位变化不引起布局位移</td></tr><tr><td>AC-E07</td><td>原生工程</td><td><code>app.json.pages</code> 非空、<code>lazyCodeLoading</code> 存在、JSON 无注释尾逗号、无 HTML 标签 / 浏览器 API</td></tr><tr><td>AC-E08</td><td>编译与真机</td><td>微信开发者工具编译通过；真机验证后台恢复与 <code>picker-view</code> 手感</td></tr><tr><td>AC-E09</td><td>隐私</td><td>无网络请求上传薪资；隐私说明可见；无登录、无推送</td></tr><tr><td>AC-E10</td><td>可解释性</td><td>设置页可见基准月、D、T、时薪、日薪；点击金额可见代入过程</td></tr></tbody></table></div>
+<hr>
+<h2 id="sec-55">10. 附录</h2>
+<h3 id="sec-56">10.1 节假日数据维护</h3>
+<ul><li>每年国务院办公厅发布次年放假安排后，更新 <code>assets/holidays-YYYY.json</code> 并随小程序版本发布。</li><li>表中 <code>holidays</code> 为法定放假日期，<code>workdays</code> 为调休补班日期；两者可同时包含周末与工作日。</li><li>单元测试需覆盖：普通周末、法定假日、调休补班日、跨月边界、跨年边界。</li></ul>
+<h3 id="sec-57">10.2 后续迭代建议（不计入 v1）</h3>
+<div class="table-wrap"><table><thead><tr><th>优先级</th><th>内容</th><th>备注</th></tr></thead><tbody><tr><td>P1</td><td>记录页：近 7 日已赚 / 摸鱼时长趋势</td><td>需先定义「已赚」的历史归档</td></tr><tr><td>P1</td><td>组件化桌面小组件 / 锁屏实时活动</td><td>需评估平台能力</td></tr><tr><td>P2</td><td>加班收益开关（1x / 1.5x 等）</td><td><strong>开启即偏离给定公式</strong>，须在设置页显著标注为扩展口径</td></tr><tr><td>P2</td><td>多套排班、按周班表</td><td>会推翻「单一班次」假设，需重做数据模型</td></tr><tr><td>P2</td><td>云端节假日表下发</td><td>需引入网络能力，当前无后端设计</td></tr></tbody></table></div>
+<hr>
+<p><strong>方案结束。</strong> 开发实现时若需调整 §0 任一决策，必须同步修订 §5（公式）、§6（展示）与 §9（验收），三者不允许出现口径分叉。</p>
+<div class="footer">摸鱼神器开发方案 v1.1 · 本文件由方案源文件自动生成，内容以 Markdown 源文件为准。</div>
+</div></main></div>
+<script>
+const links=[...document.querySelectorAll('.toc a')];
+const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){
+ links.forEach(a=>a.classList.remove('active'));
+ const a=map.get(e.target.id); if(a){a.classList.add('active');}
+}})},{rootMargin:'0px 0px -75% 0px',threshold:0});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script></body></html>

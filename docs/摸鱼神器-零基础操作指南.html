@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>摸鱼神器 · 零基础操作指南</title>
+<style>
+:root{--bg:#f6f7f9;--surface:#fff;--ink:#1c2530;--ink2:#4a5766;--ink3:#7b8794;
+--line:#e4e8ed;--brand:#0e7c72;--brand-soft:#e6f4f1;--amber:#b45309;--amber-soft:#fff5e6;
+--code-bg:#f2f4f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.85;
+font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:36px 24px 90px}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:16px;
+padding:44px 52px 64px;box-shadow:0 2px 18px rgba(20,40,60,.045)}
+.eyebrow{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:12px;
+font-weight:700;letter-spacing:.08em;padding:4px 11px;border-radius:20px;margin-bottom:14px}
+h1{font-size:30px;line-height:1.35;margin:0 0 12px}
+.lead{color:var(--ink3);font-size:14px;margin:0}
+h2{font-size:21px;margin:48px 0 18px;padding-bottom:10px;border-bottom:2px solid var(--brand-soft)}
+h3{font-size:16px;margin:26px 0 10px;color:var(--brand)}
+p{margin:11px 0;color:var(--ink2)}
+strong{color:var(--ink)}
+code{background:var(--code-bg);color:#0b5f58;padding:2px 6px;border-radius:5px;
+font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.87em;word-break:break-all}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:10px;padding:16px 18px;
+overflow-x:auto;line-height:1.7;font-size:13px}
+pre code{background:none;padding:0;color:var(--ink)}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}
+.opt{background:#fafcfb;border:1px solid var(--line);border-radius:12px;padding:20px}
+.opt.pick{border-color:var(--brand);background:var(--brand-soft)}
+.opt .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;
+color:var(--brand);margin-bottom:8px}
+.opt h4{margin:0 0 8px;font-size:15px}
+.opt p{font-size:12.5px;margin:0;line-height:1.7;color:var(--ink2)}
+.step{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.num{flex:0 0 44px;height:44px;border-radius:12px;background:var(--brand);color:#fff;
+display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600}
+.step-body{flex:1;min-width:0}
+.step-body h3{margin:2px 0 8px;color:var(--ink);font-size:17px}
+.step-body p{margin:8px 0}
+.note{margin:14px 0 0;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.7}
+.note-warn{background:var(--amber-soft);color:#7a4a10;border-left:3px solid #e8a33d}
+.note-info{background:var(--brand-soft);color:#0b5f58;border-left:3px solid var(--brand)}
+.note strong{color:inherit}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:16px 0}
+th{background:#f0f6f5;color:#0b5f58;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid #eef1f4;color:var(--ink2);vertical-align:top}
+tr:nth-child(even) td{background:#fbfcfd}
+details{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;background:#fafcfb}
+summary{cursor:pointer;font-weight:600;color:var(--ink);font-size:14px}
+details p{font-size:13.5px;margin:10px 0 2px}
+ul{padding-left:22px;color:var(--ink2)}li{margin:6px 0}
+.path{display:block;background:var(--code-bg);border:1px dashed #cfd8d6;border-radius:8px;
+padding:10px 14px;margin:10px 0;font-family:"SF Mono",Menlo,monospace;font-size:13px;color:#0b5f58}
+.ok{display:inline-block;background:var(--brand-soft);color:var(--brand);padding:2px 10px;
+border-radius:20px;font-size:12px;font-weight:600}
+.footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px}
+@media(max-width:720px){.wrap{padding:16px}.paper{padding:26px 20px 40px}
+.cards{grid-template-columns:1fr}h1{font-size:24px}.step{gap:12px}}
+@media print{.wrap{padding:0}.paper{border:0;box-shadow:0;padding:0}h2,details{break-after:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="paper">
+
+<span class="eyebrow">BEGINNER GUIDE · 零基础</span>
+<h1>摸鱼神器 · 操作指南</h1>
+<p class="lead">代码已经写好并跑过校验了。你不用懂编程，照着下面的步骤点就行。先看「选一条路」。</p>
+
+<h2>0. 先选一条路</h2>
+<p>同样能看到效果，三条路的区别只在「要不要装软件」。</p>
+<div class="cards">
+<div class="opt pick"><span class="tag">推荐 · 最简单</span><h4>方式 A：点应用卡</h4>
+<p>什么都不用装、不用注册。我已经帮你生成了预览卡片，点开就是小程序，直接填一遍设置就能用。</p></div>
+<div class="opt"><span class="tag">想自己动手</span><h4>方式 B：微信开发者工具</h4>
+<p>在电脑上安装一个免费软件，把项目导进去，点「编译」就能在电脑上看到模拟器。以后改代码也靠它。</p></div>
+<div class="opt"><span class="tag">想在手机上用</span><h4>方式 C：真机预览</h4>
+<p>在方式 B 的基础上，点一下「预览」，用手机微信扫二维码，就能在自己手机上打开开发版。</p></div>
+</div>
+<div class="note note-info"><strong>方式 A 的说明：</strong>小程序应用与预览卡已创建或复用。点击该应用卡即可查看当前效果。当前状态为未发布；如需发布，可在预览面板右上角点击「分享 / Share」，继续试用或绑定。后续上传、提交审核和正式发布都在 WorkBuddy 内完成，不需要自己去微信开发者工具上传。</div>
+
+<h2>1. 先搞清楚：项目文件在哪</h2>
+<p>你的小程序工程在这个文件夹里（<strong>注意是里面那层 <code>miniprogram</code>，不是外面那层</strong>，这是新手最常踩的坑）：</p>
+<span class="path">/Users/xuerunzhi/WorkBuddy/摸鱼神器/miniprogram/</span>
+<pre><code>摸鱼神器/
+├── 摸鱼神器-小程序开发方案.html / .md   ← 需求方案文档
+├── 摸鱼神器-零基础操作指南.html        ← 本指南
+└── miniprogram/                        ← ★ 要导入的是这一层
+    ├── app.json         页面清单、底部导航、窗口标题
+    ├── app.js / app.wxss 全局逻辑与全局样式
+    ├── project.config.json  项目配置（IDE 读它）
+    ├── utils/
+    │   ├── calc.js       计算引擎：时薪、已赚金额、状态判定
+    │   ├── holidays.js   2026 年法定节假日与调休补班表
+    │   ├── time.js       时间格式、24 小时制滑动刻度
+    │   └── storage.js    本地存储（薪资、摸鱼记录）
+    └── pages/
+        ├── index/        首页：倒计时 + 已赚金额 + 正计时
+        ├── onboarding/   首次使用的 5 步设置引导
+        └── settings/     设置页：计算依据、开关、清空数据</code></pre>
+<p>整套代码<strong>不需要服务器、不需要数据库、不需要登录</strong>，所有数据只存在手机本地。</p>
+
+<h2>2. 方式 B：手把手导入（微信开发者工具）</h2>
+
+<div class="step"><div class="num">1</div><div class="step-body">
+<h3>下载并安装「微信开发者工具」</h3>
+<p>这是微信官方的免费软件。打开下面的网址，选择 <strong>macOS 稳定版</strong> 下载，装好后拖进「应用程序」即可。</p>
+<span class="path">https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html</span>
+<p>你的电脑是 Mac，别下成 Windows 版。安装过程一路「继续」就行。</p>
+</div></div>
+
+<div class="step"><div class="num">2</div><div class="step-body">
+<h3>打开软件，用微信扫码登录</h3>
+<p>第一次打开会出现一个二维码，用手机微信扫一下、点「确认登录」。这一步只是让工具知道你是谁，不会动你微信里的任何东西。</p>
+</div></div>
+
+<div class="step"><div class="num">3</div><div class="step-body">
+<h3>点「导入项目」，不是「新建项目」</h3>
+<p>登录后选择 <strong>小程序项目</strong> → <strong>导入项目</strong>，按下面填：</p>
+<table>
+<tr><th>填写项</th><th>填什么</th></tr>
+<tr><td>项目目录</td><td>点「选择」，定位到 <code>摸鱼神器/miniprogram</code> 这个文件夹</td></tr>
+<tr><td>AppID</td><td>点 <strong>「测试号」</strong>（不用注册就能跑）。以后有自己的小程序再填真实 AppID</td></tr>
+<tr><td>项目名称</td><td>随便，默认「moyu-shenqi」就行</td></tr>
+<tr><td>后端服务 / 云开发</td><td>选 <strong>不使用云服务</strong></td></tr>
+</table>
+<div class="note note-warn"><strong>如果提示 AppID 不合法或看到 touristappid：</strong>项目里的 <code>project.config.json</code> 用的是 WorkBuddy 预览专用占位值 <code>touristappid</code>，微信开发者工具会要求换成真实的。只要在这个导入界面点「测试号」或填入你自己的 AppID，工具会自动改写配置文件，<strong>不需要你手动改代码</strong>。</div>
+<div class="note note-warn"><strong>如果提示找不到 app.json：</strong>说明目录选到外面那层了。要选到 <code>miniprogram</code> 这一层，能看到 app.json、pages、utils 三个内容才对。</div>
+</div></div>
+
+<div class="step"><div class="num">4</div><div class="step-body">
+<h3>点顶部「编译」</h3>
+<p>导入后工具会自动编译一次；如果没有，点一下顶部的<strong>「编译」</strong>按钮。右边模拟器里就会出现小程序界面。</p>
+<p>第一次进入会自动弹出 <strong>5 步设置引导</strong>（这是正常的，因为还没有你的薪资和班次数据）。</p>
+</div></div>
+
+<div class="step"><div class="num">5</div><div class="step-body">
+<h3>填一遍 5 步设置</h3>
+<ul>
+<li><strong>第 1 步</strong> 欢迎页，点「开始摸鱼」（不想填就点「等会再摸」）；</li>
+<li><strong>第 2 步</strong> 填上个月<strong>到手</strong>月薪，例如 <code>10000</code>；</li>
+<li><strong>第 3 步</strong> 点时间行选择上下班时间，例如 09:00 / 18:00；</li>
+<li><strong>第 4 步</strong> 添加休息段，例如 12:00–13:00（可以不填，直接下一步）；</li>
+<li><strong>第 5 步</strong> 确认页会直接算给你看：工作日天数、每天工作时间、时薪、日薪，点「完成，开始摸鱼」。</li>
+</ul>
+<p><strong>时间怎么选：</strong>弹出来的滚轮是 24 小时制，左列小时、右列分钟，用鼠标滚轮或触控板上下滑，每格 5 分钟；需要精确到 1 分钟就用下方的 <code>−1 分钟</code> / <code>+1 分钟</code> 按钮，选好点「确定」。</p>
+<div class="note note-info">夜班也能用：如果下班时间早于上班时间（比如 22:00 → 06:00），界面会自动标成「次日 06:00」，并提示「已识别为跨天班次」，不用额外设置。</div>
+</div></div>
+
+<div class="step"><div class="num">6</div><div class="step-body">
+<h3>看效果，随便点几下</h3>
+<ul>
+<li>最上面是<strong>距离下班倒计时</strong>，下面是<strong>当日已赚金额</strong>，两个数字每秒都在变；</li>
+<li>点一下绿色金额卡片，会弹出「这个数字怎么来的」；</li>
+<li>点「摸鱼计时 · 正计时」展开，可以开始 / 暂停 / 结束 / 重置，还能切换「摸鱼 / 加班 / 专注」标签；</li>
+<li>底部「设置」页能看到完整计算依据，也能改开关、清空数据。</li>
+</ul>
+<p>如果你想快速看到数字跳动，可以把班次里的上班时间设成比当前时间早一点、下班时间设成晚一点，保存后回首页即可。</p>
+</div></div>
+
+<div class="step"><div class="num">7</div><div class="step-body">
+<h3>（可选）在自己手机上打开</h3>
+<p>点开发者工具顶部的 <strong>「预览」</strong>，会出现二维码，用手机微信扫一下就能打开。这是<strong>开发版</strong>，只有你自己（或添加的体验成员）能进，不是正式发布，别人搜不到。</p>
+</div></div>
+
+<h2>3. 常见问题</h2>
+<details><summary>数字一直不动 / 显示 0.00，是不是坏了？</summary>
+<p>大概率是当前时间不在「工作中」。周末、法定节假日会显示「休息日」；上班前显示「未上班」；下班后金额封顶在日薪不再涨。这些都符合方案设计。想看跳动就把班次改成覆盖当前时间。</p></details>
+<details><summary>提示「AppID 不合法」「touristappid」怎么办？</summary>
+<p>见第 3 步的橙色提示：在导入界面点「测试号」或填自己的 AppID，工具会自动改写配置。不要手动去改代码。</p></details>
+<details><summary>提示找不到 app.json / 项目打不开？</summary>
+<p>目录选错了。必须选到 <code>miniprogram</code> 这一层，里面要能直接看到 app.json、pages、utils。</p></details>
+<details><summary>时间滚轮滑不动？</summary>
+<p>用鼠标滚轮或触控板在滚轮区域上下滑动；也可以直接用 <code>−1 分钟</code> / <code>+1 分钟</code> 按钮调整。选完记得点「确定」。</p></details>
+<details><summary>我改了设置，之前的数字怎么变了？</summary>
+<p>这是设计如此：修改薪资或班次后，今日金额会按新设置重新计算整日，并弹提示告知。正计时的摸鱼记录不受影响。</p></details>
+<details><summary>数据存在哪？换手机还在吗？</summary>
+<p>只存在当前设备的小程序本地缓存里，不上传。换手机、卸载小程序或清缓存都会丢失，需要重新填一次。设置页有「清空全部数据」按钮。</p></details>
+<details><summary>模拟器空白或报错？</summary>
+<p>先点一次「编译」；再看下方「调试器 → Console」有没有红色报错。建议把「详情 → 本地设置 → 调试基础库」调到 2.20 或更高。项目没有网络请求，断网也能跑。</p></details>
+
+<h2>4. 想改点东西时，看这张表</h2>
+<table>
+<tr><th>想改什么</th><th>改哪个文件</th></tr>
+<tr><td>状态文案（那些俏皮话）</td><td><code>utils/calc.js</code> 顶部的 <code>COPY</code></td></tr>
+<tr><td>主题色（现在是青绿色）</td><td><code>app.wxss</code> 与各页面 <code>.wxss</code> 里的 <code>#0e7c72</code></td></tr>
+<tr><td>次年的节假日 / 调休</td><td><code>utils/holidays.js</code> 里的 <code>RAW</code>，照格式加一年即可</td></tr>
+<tr><td>时间粒度（默认 5 分钟）</td><td><code>utils/time.js</code> 里的 <code>MINUTES</code> 与 <code>pickerValue</code></td></tr>
+<tr><td>金额保留几位小数</td><td><code>utils/time.js</code> 的 <code>money()</code></td></tr>
+<tr><td>新增页面 / 底部导航</td><td><code>app.json</code> 的 <code>pages</code> 与 <code>tabBar.list</code></td></tr>
+</table>
+<div class="note note-info">工作区 <code>tests/</code> 目录里放了两个自检脚本。以后改完代码，在终端执行 <code>node tests/moyu_calc_test.js</code> 和 <code>node tests/moyu_validate.js</code>，就能立刻确认计算和结构没被改坏（需要电脑上有 Node.js）。</div>
+
+<h2>5. 几个名词，用大白话解释</h2>
+<table>
+<tr><th>名词</th><th>意思</th></tr>
+<tr><td>小程序</td><td>在微信里打开的小应用，不用去应用商店下载</td></tr>
+<tr><td>AppID</td><td>小程序的「身份证号」。正式发布必须有；自己电脑上看效果用「测试号」就够了</td></tr>
+<tr><td>微信开发者工具</td><td>微信官方的编辑器，能在电脑上模拟手机，把代码跑起来</td></tr>
+<tr><td>编译</td><td>把代码翻译成模拟器能运行的状态，点一下就行</td></tr>
+<tr><td>模拟器</td><td>工具右侧那块「假手机」，用来看界面</td></tr>
+<tr><td>预览</td><td>生成二维码，让真手机临时打开这个开发版</td></tr>
+<tr><td>发布</td><td>把小程序正式交给微信审核、上线给别人用，这一步你现在<strong>不需要</strong>做</td></tr>
+</table>
+
+<h2>6. 这份代码目前的状态</h2>
+<p><span class="ok">已通过全部自动校验</span></p>
+<ul>
+<li>计算验收用例 <strong>40 / 40</strong>：时薪、日薪、休息冻结、加班封顶、跨天夜班、恒等式、真实节假日表全部符合方案；</li>
+<li>静态检查 + 页面冒烟测试 <strong>572 / 572</strong>：JSON 严格性、页面注册、组件合法性、WXML 表达式限制、引导 5 步流程、正计时全流程、设置页读写均通过；</li>
+<li>2026 年节假日采用国务院办公厅 2025-11-04 发布的官方安排；按新口径<strong>当月工作日天数按本月算</strong>（2026-11 为 21 天），薪资基准月 2026-10 只标注月薪来源。</li>
+</ul>
+<div class="note note-warn"><strong>还没做的验证：</strong>这台电脑上没有安装微信开发者工具，所以「真机编译、模拟器渲染、手机扫码」这三步我无法替你跑，需要你按第 2 节操作一次。代码层面的检查已经全部完成。</div>
+
+<div class="footer">摸鱼神器 · 零基础操作指南 · 2026-11-09　|　配套文件：摸鱼神器-小程序开发方案.html / .md</div>
+
+</div></div>
+</body>
+</html>

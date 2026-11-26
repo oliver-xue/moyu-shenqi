@@ -1,0 +1,13 @@
+{
+  "name": "moyu-shenqi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "摸鱼神器 · 原生微信小程序，纯本地存储的工时与收入计算工具",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/moyu_calc_test.js && node tests/moyu_validate.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

@@ -1,0 +1,161 @@
+<view class="page {{step === 0 ? 'page-welcome' : ''}}">
+
+    <view class="stepbar">
+        <view wx:for="{{stepTitles}}" wx:key="*this" class="step-dot {{index <= step ? 'step-dot-on' : ''}}"></view>
+    </view>
+    <text class="step-count">第 {{step + 1}} / 6 步</text>
+    <text class="step-title">{{stepTitle}}</text>
+
+    <view wx:if="{{step === 0}}" class="step-body step-body-welcome">
+        <view class="welcome-icon">○</view>
+        <text class="welcome-title">不催你干活
+        只告诉你又赚了几毛钱</text>
+        <text class="welcome-desc">把上班时间换算成看得见的进账数字，再把下班倒计时摆在眼前。设置只要 30 秒，全部数据只存在这台手机里，不上传、不登录。</text>
+    </view>
+
+    <view wx:if="{{step === 1}}" class="step-body">
+        <view class="card">
+            <text class="field-label">你一周上几天班？</text>
+            <view class="week-picker">
+                <view class="week-option {{workweek === 'double' ? 'week-option-on' : ''}}" data-value="double" bindtap="onSelectWorkweek">
+                    <text class="week-option-title">双休</text>
+                    <text class="week-option-desc">周一至周五，周末都休息</text>
+                </view>
+                <view class="week-option {{workweek === 'single' ? 'week-option-on' : ''}}" data-value="single" bindtap="onSelectWorkweek">
+                    <text class="week-option-title">单休</text>
+                    <text class="week-option-desc">周一至周六，只休周日</text>
+                </view>
+            </view>
+            <text class="hint">这会影响「当月工作日天数」：上班天数越多，同样月薪摊到每小时就越少。选错了随时可以在设置里改。</text>
+        </view>
+    </view>
+
+    <view wx:if="{{step === 2}}" class="step-body">
+        <view class="card">
+            <text class="field-label">{{salaryMonth}} 的到手月薪（元）</text>
+            <input style="height: 102rpx; display: block; box-sizing: border-box; left: 0rpx; top: 0rpx" class="salary-input" type="digit" value="{{salaryInput}}" placeholder="例如 10000" placeholder-class="ph" bindinput="onSalaryInput" />
+            <text wx:if="{{errors.salary}}" class="error">{{errors.salary}}</text>
+            <text class="hint">请填「到手」金额（扣完社保个税后实际到账的）。</text>
+        </view>
+        <view class="privacy">
+            <text class="privacy-title">关于隐私</text>
+            <text class="privacy-text">这个数字只用于本机计算，不会上传服务器，也不会出现在任何统计里。小程序不申请登录、不使用云开发。</text>
+        </view>
+    </view>
+
+    <view wx:if="{{step === 3}}" class="step-body">
+        <view class="card">
+            <text class="field-label">上班时间</text>
+            <view class="time-row" data-field="start" bindtap="openPicker">
+                <text class="time-value">{{startLabel}}</text>
+                <text class="time-edit">点击选择</text>
+            </view>
+            <view class="divider"></view>
+            <text class="field-label">下班时间</text>
+            <view class="time-row" data-field="end" bindtap="openPicker">
+                <text class="time-value">{{endLabel}}</text>
+                <text class="time-edit">点击选择</text>
+            </view>
+            <text wx:if="{{errors.shift}}" class="error">{{errors.shift}}</text>
+            <view class="summary-row">
+                <text>班次全长 {{spanLabel}}</text>
+                <text wx:if="{{isCrossDay}}" class="cross-tag">已识别为跨天班次</text>
+            </view>
+            <text class="hint">24 小时制，滑动每格 5 分钟，可用 ±1 分钟精调。下班时间早于上班时间会自动识别为「次日」，夜班也能用。</text>
+        </view>
+    </view>
+
+    <view wx:if="{{step === 4}}" class="step-body">
+        <view class="card">
+            <view class="rest-head">
+                <text class="field-label">休息时间段</text>
+                <text class="rest-count">{{rests.length}} / 5 段</text>
+            </view>
+            <view wx:if="{{rests.length === 0}}" class="rest-empty">还没有休息段，可以不填直接下一步</view>
+            <view wx:for="{{rests}}" wx:key="startOffsetMin" class="rest-item" data-index="{{index}}" bindtap="onEditRest">
+                <text class="rest-time">{{item.startLabel}} — {{item.endLabel}}</text>
+                <text class="rest-edit">编辑</text>
+            </view>
+            <button class="add-button {{canAddRest ? '' : 'add-button-off'}}" bindtap="onAddRest">＋ 添加休息段</button>
+            <text wx:if="{{errors.rest}}" class="error">{{errors.rest}}</text>
+            <text class="hint">休息段必须完全落在班次内；重叠或相邻的段会自动合并；最多 5 段。休息时间不计入收益，但倒计时会继续走。</text>
+        </view>
+    </view>
+
+    <view wx:if="{{step === 5}}" class="step-body">
+        <view class="card">
+            <text class="field-label">你的设置</text>
+            <view class="confirm-row"><text>休息制度</text><text>{{confirmWorkweekText}}</text></view>
+            <view class="confirm-row"><text>到手月薪</text><text>{{confirmSalaryText}}</text></view>
+            <view class="confirm-row"><text>薪资基准月（月薪来源）</text><text>{{preview.salaryMonth}}</text></view>
+            <view class="confirm-row"><text>计算基准月（本月）</text><text>{{preview.workdayMonth}}</text></view>
+            <view class="confirm-row"><text>班次</text><text>{{startLabel}} — {{endLabel}}</text></view>
+            <view class="confirm-row"><text>休息段</text><text class="confirm-rest">{{confirmRestText}}</text></view>
+        </view>
+        <view class="card result-card">
+            <text class="field-label">算出来是这样</text>
+            <view class="confirm-row"><text>当月工作日天数</text><text>{{preview.workdays}}</text></view>
+            <view class="confirm-row"><text>每天工作时间</text><text>{{preview.dailyWork}}</text></view>
+            <view class="confirm-row"><text>休息合计</text><text>{{preview.restTotal}}</text></view>
+            <view class="result-line">
+                <text>时薪</text>
+                <text class="result-value">¥ {{preview.hourly}} /小时</text>
+            </view>
+            <view class="result-line">
+                <text>今日目标（日薪）</text>
+                <text class="result-value">¥ {{preview.daily}}</text>
+            </view>
+            <text class="hint">时薪 = 上月到手月薪 / D / T（D = 本月工作日天数，T = 每天工作时间）。跨月时工作日天数会自动按新月重算，薪资数值保持到你重新填写为止。</text>
+        </view>
+    </view>
+
+    <view class="footer-bar">
+        <button wx:if="{{step > 0}}" class="footer-btn ghost-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onPrev">上一步</button>
+        <button wx:if="{{step === 0}}" class="footer-btn ghost-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onSkip">等会再摸</button>
+        <button wx:if="{{step < 5}}" class="footer-btn primary-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onNext">{{step === 0 ? '开始摸鱼' : '下一步'}}</button>
+        <button wx:if="{{step === 5}}" class="footer-btn primary-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onFinish">完成，开始摸鱼</button>
+    </view>
+
+    <view wx:if="{{showRestEditor}}" class="mask" bindtap="onCloseRestEditor">
+        <view class="sheet" catchtap="noop">
+            <text class="sheet-title">{{editingIndex >= 0 ? '编辑休息段' : '添加休息段'}}</text>
+            <view class="time-row" data-field="restStart" bindtap="openPicker">
+                <text class="time-label">开始</text>
+                <text class="time-value">{{tempRestStartLabel}}</text>
+            </view>
+            <view class="time-row" data-field="restEnd" bindtap="openPicker">
+                <text class="time-label">结束</text>
+                <text class="time-value">{{tempRestEndLabel}}</text>
+            </view>
+            <text wx:if="{{errors.rest}}" class="error">{{errors.rest}}</text>
+            <text class="hint">跨天的夜班也支持：例如 22:00–06:00 的班次里，选 00:00–00:30 就是凌晨那段。</text>
+            <view class="btn-row">
+                <button class="primary-button" bindtap="onSaveRest">保存这段</button>
+                <button wx:if="{{editingIndex >= 0}}" class="ghost-button" bindtap="onDeleteRest">删除</button>
+                <button class="ghost-button" bindtap="onCloseRestEditor">取消</button>
+            </view>
+        </view>
+    </view>
+
+    <view wx:if="{{showPicker}}" class="mask picker-mask" bindtap="onClosePicker">
+        <view class="sheet" catchtap="noop">
+            <text class="sheet-title">{{pickerTitle}}</text>
+            <text class="picker-current">{{pickerMinLabel}}</text>
+            <picker-view class="picker" value="{{pickerValue}}" bindchange="onPickerChange" indicator-style="height: 80rpx;">
+                <picker-view-column>
+                    <view wx:for="{{hours}}" wx:key="*this" class="picker-item">{{item}}</view>
+                </picker-view-column>
+                <picker-view-column>
+                    <view wx:for="{{minutes}}" wx:key="*this" class="picker-item">{{item}}</view>
+                </picker-view-column>
+            </picker-view>
+            <view class="fine-row">
+                <button size="mini" bindtap="onMinus">− 1 分钟</button>
+                <text class="fine-tip">精确调整到 1 分钟</text>
+                <button size="mini" bindtap="onPlus">+ 1 分钟</button>
+            </view>
+            <button class="primary-button sheet-button" bindtap="onConfirmPicker">确定</button>
+        </view>
+    </view>
+
+</view>

@@ -1,0 +1,60 @@
+<view class="page">
+
+    <view wx:if="{{!ready}}" class="card empty-card">
+        <text class="empty-title">还没有设置</text>
+        <text class="hint">填一下薪资和班次，就能开始算了。</text>
+        <button class="primary-button" bindtap="onGoSetup">去设置</button>
+    </view>
+
+    <block wx:else>
+        <view class="card">
+            <text class="section-title">计算依据</text>
+            <view wx:for="{{rows}}" wx:key="label" class="basis-row">
+                <text class="basis-label">{{item.label}}</text>
+                <text class="basis-value">{{item.value}}</text>
+            </view>
+            <text class="hint">{{holidaysNote}}</text>
+        </view>
+
+        <view class="card">
+            <text class="section-title">当前班次</text>
+            <view class="line"><text>休息制度</text><text>{{workweekText}}</text></view>
+            <view class="line"><text>上下班</text><text>{{shiftText}}</text></view>
+            <view class="line"><text>休息段</text><text class="line-value">{{restText}}</text></view>
+            <button class="edit-button primary-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onEdit">重新设置薪资与班次</button>
+            <text class="hint">修改后，今日数据会按新设置重新计算。</text>
+        </view>
+
+        <view class="card">
+            <text class="section-title">开关</text>
+            <view class="switch-row">
+                <view class="switch-text">
+                    <text class="switch-title">休息时自动开始摸鱼计时</text>
+                    <text class="switch-desc">默认关闭。开启后只影响正计时，不影响金额。</text>
+                </view>
+                <switch checked="{{autoRestLink}}" color="#0e7c72" bindchange="onToggleAutoRestLink" />
+            </view>
+            <view class="switch-row">
+                <view class="switch-text">
+                    <text class="switch-title">标记「我还在加班」</text>
+                    <text class="switch-desc">加班不改金额，只记录时长（严格按公式封顶）。</text>
+                </view>
+                <switch checked="{{overtimeMode}}" color="#0e7c72" bindchange="onToggleOvertime" />
+            </view>
+        </view>
+
+        <view class="card">
+            <text class="section-title">摸鱼记录</text>
+            <view class="line"><text>今日累计</text><text>{{todayTotalText}}</text></view>
+            <view class="line"><text>已保存记录</text><text>{{recordCount}} 条</text></view>
+            <button class="edit-button ghost-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onClearToday">清空今日累计</button>
+        </view>
+
+        <view class="card">
+            <button class="edit-button ghost-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onAbout">关于与隐私</button>
+            <button class="edit-button danger-button tap-bounce" hover-class="btn-press" hover-start-time="0" bindtap="onClearAll">清空全部数据</button>
+            <text class="hint">数据只存在这台手机上，不上传、不联网、不需要登录。</text>
+        </view>
+    </block>
+
+</view>
